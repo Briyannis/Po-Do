@@ -1,0 +1,125 @@
+
+body {
+    font-family:sans-serif;
+    background-color: #ffffff;
+}
+
+header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 10px;
+  border-bottom: thick solid #000000;
+
+}
+
+h1 {
+  color: #4169e1;
+  margin: 0;
+}
+
+.hamburger-menu {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.bar {
+  width: 25px;
+  height: 3px;
+  background-color: black;
+  margin: 3px 0;
+  
+}
+
+.container {
+display: flex;
+flex-direction:column;
+justify-content:center;
+
+width:100%;
+
+}
+
+.digit {
+font-size: 150px;
+
+}
+.txt {
+font-size: 30px;
+
+}
+
+.calendar-container {
+            position: relative;
+            display: inline-block;
+	    padding: 10px;
+        }
+.dropdown-arrow {
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 5px 5px 0 5px;
+            border-color: #000 transparent transparent transparent;
+            position: absolute;
+            top: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            cursor: pointer;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #f9f9f9;
+            min-width: 900px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            z-index: 1;
+        }
+        .calendar-container:hover .dropdown-content {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        td {
+            height: 30px;
+        }
+
+content {
+  display: flex;
+}
+
+.todo-list {
+  float: right;
+  margin-top: 4px;
+}
+
+.todo-list ul {
+  padding: 0;
+}
+
+.todo-list h4 {
+  margin: 0;
+}
+
+.cont {
+display: flex;
+.music-overlay{
+  float: right;
+}
