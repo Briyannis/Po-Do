@@ -120,6 +120,8 @@ content {
 
 .cont {
 display: flex;
+}
+
 .music-overlay{
   float: right;
 }
