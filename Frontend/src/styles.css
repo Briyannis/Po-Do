@@ -19,6 +19,34 @@ header {
   color: white;
 }
 
+.dark-mode th {
+  color: black;
+}
+
+.dark-mode td {
+  background-color: white;
+}
+
+.dark-mode header {
+  border-bottom-color: white;
+}
+
+.dark-mode .bar {
+  background-color: white;
+}
+
+.dark-mode .dropdown-arrow {
+  border-color: #fff transparent transparent transparent; 
+}
+
+.dark-mode .signup-content {
+  color: black;
+}
+
+.dark-mode .close {
+  color: black;
+}
+
 .light-mode {
   background-color:white;
   color: black;
@@ -77,8 +105,15 @@ h1 {
   font-size: 20px;
 }
 
+.signup-content a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #000000; 
+}
+
 .signup-content h2 {
-  margin-top: 0;
+  margin-top: 3px;
 }
 
 .signup-content input,
@@ -99,8 +134,8 @@ h1 {
 
 .close {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 0;
+  right: 5px;
   cursor: pointer;
 }
 
