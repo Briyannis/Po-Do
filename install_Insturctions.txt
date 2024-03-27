@@ -9,4 +9,6 @@ Backend installs:
 - npm install cors
 - npm run devStart
 
-
+Timer installs:
+npm install --save react-circular-progressbar
+npm install react-slider
