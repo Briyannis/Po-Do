@@ -1,7 +1,6 @@
-
 body {
-    font-family:sans-serif;
-    background-color: #ffffff;
+  font-family: sans-serif;
+  background-color: #ffffff;
 }
 
 header {
@@ -11,11 +10,10 @@ header {
   position: relative;
   padding: 10px;
   border-bottom: thick solid #000000;
-
 }
 
 .dark-mode {
-  background-color:black;
+  background-color: black;
   color: white;
 }
 
@@ -36,7 +34,7 @@ header {
 }
 
 .dark-mode .dropdown-arrow {
-  border-color: #fff transparent transparent transparent; 
+  border-color: #fff transparent transparent transparent;
 }
 
 .dark-mode .signup-content {
@@ -48,9 +46,8 @@ header {
 }
 
 .light-mode {
-  background-color:white;
+  background-color: white;
   color: black;
-  
 }
 h1 {
   color: #4169e1;
@@ -67,19 +64,19 @@ h1 {
 }
 
 .dropdown-menu {
-    display: none;
-    position: absolute;
-    top: calc(100% + 10px);
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
   right: 20px;
   background-color: #ffffff;
   border: 1px solid #000000;
-  }
+}
 
 .dropdown-menu a {
   display: block;
   padding: 10px;
   text-decoration: none;
-  color: #000000; 
+  color: #000000;
 }
 
 .signup-popup {
@@ -106,10 +103,10 @@ h1 {
 }
 
 .signup-content a {
-    display: block;
-    padding: 10px;
-    text-decoration: none;
-    color: #000000; 
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #000000;
 }
 
 .signup-content h2 {
@@ -144,73 +141,70 @@ h1 {
   height: 3px;
   background-color: black;
   margin: 3px 0;
-  
 }
 
 .container {
-display: flex;
-flex-direction:column;
-justify-content:center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
-width:100%;
-
+  width: 100%;
 }
 
 .digit {
-font-size: 150px;
-
+  font-size: 150px;
 }
 .txt {
-font-size: 30px;
-
+  font-size: 30px;
 }
 
 .calendar-container {
-            position: relative;
-            display: inline-block;
-	    padding: 10px;
-        }
+  position: relative;
+  display: inline-block;
+  padding: 10px;
+}
 .dropdown-arrow {
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 5px 5px 0 5px;
-            border-color: #000 transparent transparent transparent;
-            position: absolute;
-            top: 100%;
-            right: 50%;
-            transform: translateX(50%);
-            cursor: pointer;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background-color: #f9f9f9;
-            min-width: 900px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            z-index: 1;
-        }
-        .calendar-container:hover .dropdown-content {
-            display: block;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        td {
-            height: 30px;
-        }
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 5px 5px 0 5px;
+  border-color: #000 transparent transparent transparent;
+  position: absolute;
+  top: 100%;
+  right: 50%;
+  transform: translateX(50%);
+  cursor: pointer;
+}
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #f9f9f9;
+  min-width: 900px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  z-index: 1;
+}
+.calendar-container:hover .dropdown-content {
+  display: block;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+th {
+  background-color: #f2f2f2;
+}
+td {
+  height: 30px;
+}
 
 content {
   display: flex;
@@ -230,9 +224,9 @@ content {
 }
 
 .cont {
-display: flex;
+  display: flex;
 }
 
-.music-overlay{
+.music-overlay {
   float: right;
 }

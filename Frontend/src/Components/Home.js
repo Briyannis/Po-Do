@@ -4,6 +4,7 @@ import Timer from "../timer/Timer";
 import Settings from "../timer/Settings";
 import { useState } from "react";
 import SettingsContext from "../timer/SettingsContext";
+import ToDoList from "../todolist/ToDoList";
 
 const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
@@ -177,14 +178,8 @@ const Home = () => {
             </table>
           </div>
         </div>
-
-        <div className="todo-list">
-          <h4>To-Do List</h4>
-          <ul>
-            <li>Task 1</li>
-            <li>Task 2</li>
-            <li>Task 3</li>
-          </ul>
+        <div>
+          <ToDoList />
         </div>
 
         <div className="cont">
