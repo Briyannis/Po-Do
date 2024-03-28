@@ -10,11 +10,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
+    "config": "^3.3.11",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "install": "^0.13.0",
     "mysql": "^2.18.1",
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "npm": "^10.5.0",
+    "oracle-nosqldb": "^5.5.1"
   },
   "description": ""
 }

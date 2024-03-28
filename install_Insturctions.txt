@@ -4,9 +4,11 @@ Frontend installs:
 
 Backend installs:
 - npm init
-- npm install express body-parser mysql
+- npm install express body-parser
 - npm install nodemon
 - npm install cors
+- npm install oracle-nosqldb
+-npm install express-session cookie-parser
 - npm run devStart
 
 Timer installs:

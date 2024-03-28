@@ -5,6 +5,7 @@ import Settings from "../timer/Settings";
 import { useState } from "react";
 import SettingsContext from "../timer/SettingsContext";
 import ToDoList from "../todolist/ToDoList";
+import Axios from "axios";
 
 const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
@@ -15,7 +16,6 @@ const Home = () => {
     dropdown.style.display =
       dropdown.style.display === "block" ? "none" : "block";
   }
-
   function openSignUpPopup() {
     const signupPopup = document.getElementById("signupPopup");
     signupPopup.style.display = "block";
@@ -40,12 +40,49 @@ const Home = () => {
     const [isSignUp, setIsSignUp] = useState(true);
     const [forgotPassword, setForgotPassword] = useState(false);
 
+    //user info
+
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
+
     const toggleForm = () => setIsSignUp(!isSignUp);
     const toggleForgotPassword = () => setForgotPassword(!forgotPassword);
 
+    Axios.defaults.withCredentials = true;
     const handleSubmit = (event) => {
       event.preventDefault();
-      // Implement form submission logic here
+      if (isSignUp) {
+        // Implement sign-up logic here
+        Axios.post("http://localhost:3001/podoDB/insertUser", {
+          username: username,
+          email: email,
+          password: password,
+        })
+          .then((response) => {
+            console.log(response.data);
+
+            closeSignUpPopup();
+          })
+          .catch((error) => {
+            console.error("Error signing up:", error);
+            alert("User already exists");
+          });
+      } else {
+        // Implement sign-in logic here
+        Axios.post("http://localhost:3001/podoDB/login", {
+          username: username,
+          password: password,
+        })
+          .then((response) => {
+            console.log(response.data);
+            closeSignUpPopup();
+          })
+          .catch((error) => {
+            console.error("Error signing in:", error);
+            alert("Username or Password Incorrect");
+          });
+      }
     };
 
     const handleForgotPassword = (event) => {
@@ -69,9 +106,35 @@ const Home = () => {
           </h2>
           {!forgotPassword && (
             <form id="signupForm" onSubmit={handleSubmit}>
-              {isSignUp && <input type="email" placeholder="Email" required />}
-              <input type="text" placeholder="Username" required />
-              <input type="password" placeholder="Password" required />
+              {isSignUp && (
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                  }}
+                  required
+                />
+              )}
+              <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                }}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                }}
+                required
+              />
               <button type="submit">{isSignUp ? "Sign Up" : "Sign In"}</button>
               <a href="#" onClick={toggleForm}>
                 Sign {isSignUp ? "In" : "Up"}
