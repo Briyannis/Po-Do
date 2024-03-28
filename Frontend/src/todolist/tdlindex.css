@@ -16,22 +16,22 @@ button {
   cursor: pointer;
   transition: background-color 0.5s ease;
 }
-.add-button {
+.add {
   background-color: hsl(120, 100%, 25%);
 }
-.add-button:hover {
+.add:hover {
   background-color: hsl(120, 100%, 15%);
 }
-.delete-button {
+.delete {
   background-color: hsl(0, 100%, 50%);
 }
-.delete-button:hover {
+.delete:hover {
   background-color: hsl(0, 100%, 40%);
 }
-.move-button {
+.move {
   background-color: hsl(209, 100%, 50%);
 }
-.move-button:hover {
+.move:hover {
   background-color: hsl(209, 100%, 40%);
 }
 input[type="text"] {
@@ -47,19 +47,21 @@ ol {
 li {
   font-size: 2rem;
   font-weight: bold;
-  padding: 15px;
+  padding: 7px;
   background-color: hsl(0, 0%, 97%);
   margin-bottom: 10px;
   border: 3px solid hsla(0, 0%, 85%, 0.75);
   border-radius: 5px;
   display: flex;
   align-items: center;
+  margin-right: 30px;
 }
 .text {
   flex: 1;
+  color: black;
 }
-.delete-button,
-.move-button {
+.delete,
+.move {
   padding: 8px 12px;
   font-size: 1.4rem;
   margin-left: 10px;

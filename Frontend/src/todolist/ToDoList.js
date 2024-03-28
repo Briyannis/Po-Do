@@ -27,7 +27,7 @@ function ToDoList() {
         updatedTasks[index - 1],
         updatedTasks[index],
       ];
-      setTasks();
+      setTasks(updatedTasks); // Update state with the updatedTasks array
     }
   }
 
