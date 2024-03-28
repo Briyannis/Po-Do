@@ -169,7 +169,6 @@ const Home = () => {
           <div className="bar"></div>
           <div className="bar"></div>
         </div>
-        <div id="DarkModetext"></div>
         <div className="dropdown-menu" id="dropdownMenu">
           <a href="#">
             Mode <button onClick={lightMode}>Light</button> /{" "}
@@ -180,7 +179,6 @@ const Home = () => {
           </a>
           <a href="#">Settings</a>
         </div>
-        {/*<!-- Add light/dark option, settings, signup/login, -->*/}
       </header>
 
       <div className="content">
