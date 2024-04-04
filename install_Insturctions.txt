@@ -1,13 +1,13 @@
 Frontend installs:
 -npm install
+-npm axios
 
 
 Backend installs:
-- npm init
 - npm install express body-parser
-- npm install nodemon
-- npm install cors
-- npm install oracle-nosqldb
+- npm install nodemon querystring
+- npm install cors request bcrypt
+- npm install oracle-nosqldb jsonwebtoken
 -npm install express-session cookie-parser
 - npm run devStart
 

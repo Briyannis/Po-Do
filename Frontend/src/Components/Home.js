@@ -1,25 +1,62 @@
-import React from "react";
-import "../styles.css"; //Importing styles
+import React, { useEffect } from "react";
+import "../styles.css";
 import Timer from "../timer/Timer";
 import Settings from "../timer/Settings";
 import { useState } from "react";
 import SettingsContext from "../timer/SettingsContext";
 import ToDoList from "../todolist/ToDoList";
 import Axios from "axios";
+import AuthForm from "./LoginSignupForm";
+import Cookies from "js-cookie";
+import MusicPlayer from "../MusicOverlay/MusicPlayer";
 
 const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [workMinutes, setWorkMinutes] = useState(45);
   const [breakMinutes, setBreakMinutes] = useState(15);
+
+  //login states
+  const [loginStatus, setLoginStatus] = useState("");
+  const [auth, setAuth] = useState(false);
+
+  const [darkmode, setDarkMode] = useState(false);
+
+  //Renders authentications for loggedin user
+  useEffect(() => {
+    const token = Cookies.get("token");
+    Axios.get("http://localhost:3001", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (res.data.Status === "Success") {
+          setAuth(true);
+          setLoginStatus((prevLoginStatus) => ({
+            ...prevLoginStatus,
+            id: res.data.userInfo.id,
+            email: res.data.userInfo.email,
+            username: res.data.userInfo.username,
+          }));
+        } else {
+          setAuth(false);
+          console.log(res.data.message)
+        }
+      })
+      .catch((error) => {
+        console.error("No User Signed In", error);
+        setAuth(false);
+      });
+  }, []);
+
   function toggleDropdown() {
     const dropdown = document.getElementById("dropdownMenu");
     dropdown.style.display =
       dropdown.style.display === "block" ? "none" : "block";
   }
-  function openSignUpPopup() {
+  const openSignUpPopup = (event) => {
+    event.preventDefault();
     const signupPopup = document.getElementById("signupPopup");
     signupPopup.style.display = "block";
-  }
+  };
 
   function closeSignUpPopup() {
     const signupPopup = document.getElementById("signupPopup");
@@ -29,62 +66,97 @@ const Home = () => {
   function darkMode() {
     let element = document.body;
     element.className = "dark-mode";
+    setDarkMode(true);
   }
 
   function lightMode() {
     let element = document.body;
     element.className = "light-mode";
+    setDarkMode(false);
   }
 
-  const SignUpSignInForm = () => {
+  function handleLogOut(event) {
+    Axios.get("http://localhost:3001/logout")
+      .then((res) => {
+        if (res.data.Status === "Success") {
+          window.location.reload(true);
+        } else {
+          alert("error");
+        }
+      })
+      .catch((err) => console.log(err));
+  }
+  // eslint-disable-next-line
+  const SignUpSignInForm = ({ setLoginStatus }) => {
     const [isSignUp, setIsSignUp] = useState(true);
     const [forgotPassword, setForgotPassword] = useState(false);
 
     //user info
 
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [email, setEmail] = useState("");
+    const [formValues, setFormValues] = useState({
+      username: "",
+      email: "",
+      password: "",
+    });
+
+    // const [editedValue, setEditedValue] = useState({
+    //   username: "",
+    //   email: "",
+    //   password: "",
+    // });
 
     const toggleForm = () => setIsSignUp(!isSignUp);
     const toggleForgotPassword = () => setForgotPassword(!forgotPassword);
-
-    Axios.defaults.withCredentials = true;
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
       event.preventDefault();
+      const { username, email, password } = formValues;
+
       if (isSignUp) {
         // Implement sign-up logic here
-        Axios.post("http://localhost:3001/podoDB/insertUser", {
+        await Axios.post("http://localhost:3001/podoDB/insertUser", {
           username: username,
           email: email,
           password: password,
         })
           .then((response) => {
-            console.log(response.data);
-
+            console.log(response.data.message);
             closeSignUpPopup();
           })
           .catch((error) => {
             console.error("Error signing up:", error);
-            alert("User already exists");
+            alert(error.response.data.message);
           });
       } else {
         // Implement sign-in logic here
-        Axios.post("http://localhost:3001/podoDB/login", {
+        Axios.post("http://localhost:3001/login", {
           username: username,
           password: password,
         })
           .then((response) => {
-            console.log(response.data);
+            console.log(response.data.message);
+            console.log(response.data.userInfo);
+            //login
+            setLoginStatus(response.data.userInfo);
+            setAuth(true);
             closeSignUpPopup();
           })
           .catch((error) => {
             console.error("Error signing in:", error);
-            alert("Username or Password Incorrect");
+            if (error.response && error.response.status === 404) {
+              // Handle 404 error (user not found) here
+              alert("User Not Found");
+            } else {
+              // Handle other errors
+              alert(
+                error.response
+                  ? error.response.data.message
+                  : "Unknown error occurred"
+              );
+            }
           });
       }
     };
-
+    // eslint-disable-next-line
     const handleForgotPassword = (event) => {
       event.preventDefault();
       // Implement forgot password logic here
@@ -110,39 +182,39 @@ const Home = () => {
                 <input
                   type="email"
                   placeholder="Email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                  }}
+                  value={formValues.email}
+                  onChange={(e) =>
+                    setFormValues({ ...formValues, email: e.target.value })
+                  }
                   required
                 />
               )}
               <input
                 type="text"
                 placeholder="Username"
-                value={username}
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                }}
+                value={formValues.username}
+                onChange={(e) =>
+                  setFormValues({ ...formValues, username: e.target.value })
+                }
                 required
               />
               <input
                 type="password"
                 placeholder="Password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                }}
+                value={formValues.password}
+                onChange={(e) =>
+                  setFormValues({ ...formValues, password: e.target.value })
+                }
                 required
               />
               <button type="submit">{isSignUp ? "Sign Up" : "Sign In"}</button>
-              <a href="#" onClick={toggleForm}>
-                Sign {isSignUp ? "In" : "Up"}
+              <a href="/#" onClick={toggleForm}>
+                Sign {isSignUp ? "Up" : "In"}
               </a>
             </form>
           )}
           {!isSignUp && !forgotPassword && (
-            <a href="#" onClick={toggleForgotPassword}>
+            <a href="/#" onClick={toggleForgotPassword}>
               Forgot Password?
             </a>
           )}
@@ -150,7 +222,7 @@ const Home = () => {
             <div>
               <input type="text" placeholder="Enter your email" required />
               <button type="submit">Reset Password</button>
-              <a href="#" onClick={toggleForgotPassword}>
+              <a href="/#" onClick={toggleForgotPassword}>
                 Sign In
               </a>
             </div>
@@ -160,26 +232,53 @@ const Home = () => {
     );
   };
 
+
   return (
     <div>
-      <header>
-        <h1>Po-Do</h1>
-        <div className="hamburger-menu" onClick={toggleDropdown}>
-          <div className="bar"></div>
-          <div className="bar"></div>
-          <div className="bar"></div>
-        </div>
-        <div className="dropdown-menu" id="dropdownMenu">
-          <a href="#">
-            Mode <button onClick={lightMode}>Light</button> /{" "}
-            <button onClick={darkMode}>Dark</button>
-          </a>
-          <a href="#" onClick={openSignUpPopup}>
-            Sign Up
-          </a>
-          <a href="#">Settings</a>
-        </div>
-      </header>
+      {auth ? (
+        <header>
+          <h1>Po-Do</h1>
+          <h2>Hello {loginStatus.username}</h2>
+          <div className="hamburger-menu" onClick={toggleDropdown}>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+          </div>
+          <div id="DarkModetext"></div>
+          <div className="dropdown-menu" id="dropdownMenu">
+            <a href="/#">
+              Mode <button onClick={lightMode}>Light</button> /{" "}
+              <button onClick={darkMode}>Dark</button>
+            </a>
+            <a href="/#">Settings</a>
+            <a href="/#" onClick={handleLogOut}>
+              Log Out
+            </a>
+          </div>
+          {/*<!-- Add light/dark option, settings, signup/login, -->*/}
+        </header>
+      ) : (
+        // Render content for guests
+        <header>
+          <h1>Po-Do</h1>
+          <div className="hamburger-menu" onClick={toggleDropdown}>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+          </div>
+          <div id="DarkModetext"></div>
+          <div className="dropdown-menu" id="dropdownMenu">
+            <a href="/#">
+              Mode <button onClick={lightMode}>Light</button> /{" "}
+              <button onClick={darkMode}>Dark</button>
+            </a>
+            <a href="/#" onClick={openSignUpPopup}>
+              Sign Up
+            </a>
+          </div>
+          {/*<!-- Add light/dark option, settings, signup/login, -->*/}
+        </header>
+      )}
 
       <div className="content">
         <div className="calendar-container">
@@ -240,9 +339,8 @@ const Home = () => {
           </div>
         </div>
         <div>
-          <ToDoList />
+          <ToDoList loginStatusID={loginStatus.id} auth={auth} />
         </div>
-
         <div className="cont">
           <div className="container">
             <main>
@@ -261,13 +359,15 @@ const Home = () => {
             </main>
           </div>
 
-          <div className="music-overlay">
-            Music overlay: <br /> Spotify <br /> Apple Music
-          </div>
+          {auth ? (<div className="music-overlay">
+            <MusicPlayer auth={auth} loginStatusID={loginStatus.id} darkmode={darkmode}/>
+          </div>): <div className="music-overlay">
+          <h2>Sign IN</h2>
+          </div>}
         </div>
       </div>
 
-      <SignUpSignInForm />
+      <AuthForm setLoginStatus={setLoginStatus} setAuth={setAuth} />
     </div>
   );
 };
