@@ -9,6 +9,7 @@ import Axios from "axios";
 import AuthForm from "./LoginSignupForm";
 import Cookies from "js-cookie";
 import MusicPlayer from "../MusicOverlay/MusicPlayer";
+import Calendar from "../calender/test";
 
 const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
@@ -38,7 +39,7 @@ const Home = () => {
           }));
         } else {
           setAuth(false);
-          console.log(res.data.message)
+          console.log(res.data.message);
         }
       })
       .catch((error) => {
@@ -232,7 +233,6 @@ const Home = () => {
     );
   };
 
-
   return (
     <div>
       {auth ? (
@@ -282,61 +282,7 @@ const Home = () => {
 
       <div className="content">
         <div className="calendar-container">
-          <table>
-            <tr>
-              <th>Sunday</th>
-              <th>Monday</th>
-              <th>Tuesday</th>
-              <th>Wednesday</th>
-              <th>Thursday</th>
-              <th>Friday</th>
-              <th>Saturday</th>
-            </tr>
-            <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-          </table>
-          <div className="dropdown-arrow"></div>
-          <div className="dropdown-content">
-            {/*<!-- Full month calendar here -->*/}
-            <table>
-              <caption>March 2024</caption>
-              <tr>
-                <th>Sun</th>
-                <th>Mon</th>
-                <th>Tue</th>
-                <th>Wed</th>
-                <th>Thu</th>
-                <th>Fri</th>
-                <th>Sat</th>
-              </tr>
-              <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>1</td>
-                <td>2</td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td>4</td>
-                <td>5</td>
-                <td>6</td>
-                <td>7</td>
-                <td>8</td>
-                <td>9</td>
-              </tr>
-              {/*<!-- Add more rows -->*/}
-            </table>
-          </div>
+          <Calendar />
         </div>
         <div>
           <ToDoList loginStatusID={loginStatus.id} auth={auth} />
@@ -359,11 +305,19 @@ const Home = () => {
             </main>
           </div>
 
-          {auth ? (<div className="music-overlay">
-            <MusicPlayer auth={auth} loginStatusID={loginStatus.id} darkmode={darkmode}/>
-          </div>): <div className="music-overlay">
-          <h2>Sign IN</h2>
-          </div>}
+          {auth ? (
+            <div className="music-overlay">
+              <MusicPlayer
+                auth={auth}
+                loginStatusID={loginStatus.id}
+                darkmode={darkmode}
+              />
+            </div>
+          ) : (
+            <div className="music-overlay">
+              <h2>Sign IN</h2>
+            </div>
+          )}
         </div>
       </div>
 
