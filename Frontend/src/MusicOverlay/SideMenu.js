@@ -85,16 +85,10 @@ const SideMenu = ({ library, spotifyAccessToken }) => {
       }
     };
   
-    // Function to handle album selection
+    //handle album selection
     const handleAlbumSelect = (album) => {
       setSelectedAlbum(album);
     };
-  
-    // // Function to handle song selection within the selected album
-    // const handleSongSelectInAlbum = (song) => {
-    //   // Pass the selected song to the handleSongSelect function
-    //   handleSongSelect(song);
-    // };
   
     return (
       <div>
@@ -102,7 +96,7 @@ const SideMenu = ({ library, spotifyAccessToken }) => {
           <form onSubmit={searchSpotify}>
         <input
                 type="text"
-                onChange={(e) => setSearchKey(e.target.value)}
+                onChange={(e) => {setSearchKey(e.target.value)}}
               />
               <button type="submit">Search</button>
             </form></div>
@@ -124,6 +118,3 @@ const SideMenu = ({ library, spotifyAccessToken }) => {
   
 
 export default SideMenu;
-
-
-

@@ -24,7 +24,7 @@ const ToDoList = ({ loginStatusID, auth }) => {
       setTasks((t) => [...t, task]);
       setNewTask("");
       setNewTaskDate("");
-      Axios.post("http://localhost:3001/podoDB/insertTask", {
+      Axios.post("http://localhost:3001/tasks/podoDB/insertTask", {
         userID: loginStatusID,
         ...task,
       })
@@ -41,7 +41,7 @@ const ToDoList = ({ loginStatusID, auth }) => {
   //gets users task
   useEffect(() => {
     if (auth && loginStatusID) {
-      Axios.get(`http://localhost:3001/podoDB/getTask?userID=${loginStatusID}`)
+      Axios.get(`http://localhost:3001/tasks/podoDB/getTask?userID=${loginStatusID}`)
         .then((response) => {
           setTasks(response.data);
         })
@@ -104,7 +104,7 @@ const ToDoList = ({ loginStatusID, auth }) => {
     const task = tasks[index];
     const taskID = task.taskID;
 
-    Axios.delete("http://localhost:3001/podoDB/deleteTask", {data: {
+    Axios.delete("http://localhost:3001/tasks/podoDB/deleteTask", {data: {
       taskID: taskID
   }})
       .then((response) => {

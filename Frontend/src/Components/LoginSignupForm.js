@@ -39,7 +39,7 @@ const AuthForm = ({ setLoginStatus, setAuth }) => {
 
     if (isSignUp) {
       // Implement sign-up logic here
-      Axios.post("http://localhost:3001/podoDB/insertUser", {
+      Axios.post("http://localhost:3001/auth/podoDB/insertUser", {
         username: username,
         email: email,
         password: password,
@@ -60,7 +60,7 @@ const AuthForm = ({ setLoginStatus, setAuth }) => {
 
   async function login() {
     try {
-      const response = await Axios.post("http://localhost:3001/login", {
+      const response = await Axios.post("http://localhost:3001/auth/login", {
         username: formValues.username,
         password: formValues.password,
       });

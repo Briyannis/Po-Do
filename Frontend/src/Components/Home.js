@@ -10,6 +10,7 @@ import AuthForm from "./LoginSignupForm";
 import Cookies from "js-cookie";
 import MusicPlayer from "../MusicOverlay/MusicPlayer";
 import Calendar from "../calender/test";
+import UserSettings from "./UserSettings"
 
 const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
@@ -25,7 +26,7 @@ const Home = () => {
   //Renders authentications for loggedin user
   useEffect(() => {
     const token = Cookies.get("token");
-    Axios.get("http://localhost:3001", {
+    Axios.get("http://localhost:3001/auth/", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -59,11 +60,6 @@ const Home = () => {
     signupPopup.style.display = "block";
   };
 
-  function closeSignUpPopup() {
-    const signupPopup = document.getElementById("signupPopup");
-    signupPopup.style.display = "none";
-  }
-
   function darkMode() {
     let element = document.body;
     element.className = "dark-mode";
@@ -77,7 +73,7 @@ const Home = () => {
   }
 
   function handleLogOut(event) {
-    Axios.get("http://localhost:3001/logout")
+    Axios.get("http://localhost:3001/auth/logout")
       .then((res) => {
         if (res.data.Status === "Success") {
           window.location.reload(true);
@@ -87,150 +83,15 @@ const Home = () => {
       })
       .catch((err) => console.log(err));
   }
-  // eslint-disable-next-line
-  const SignUpSignInForm = ({ setLoginStatus }) => {
-    const [isSignUp, setIsSignUp] = useState(true);
-    const [forgotPassword, setForgotPassword] = useState(false);
 
-    //user info
+  const openSettings = (event) => {
+    event.preventDefault();
+    const signupPopup = document.getElementById("settings");
+    signupPopup.style.display = "block";
+  };
 
-    const [formValues, setFormValues] = useState({
-      username: "",
-      email: "",
-      password: "",
-    });
-
-    // const [editedValue, setEditedValue] = useState({
-    //   username: "",
-    //   email: "",
-    //   password: "",
-    // });
-
-    const toggleForm = () => setIsSignUp(!isSignUp);
-    const toggleForgotPassword = () => setForgotPassword(!forgotPassword);
-    const handleSubmit = async (event) => {
-      event.preventDefault();
-      const { username, email, password } = formValues;
-
-      if (isSignUp) {
-        // Implement sign-up logic here
-        await Axios.post("http://localhost:3001/podoDB/insertUser", {
-          username: username,
-          email: email,
-          password: password,
-        })
-          .then((response) => {
-            console.log(response.data.message);
-            closeSignUpPopup();
-          })
-          .catch((error) => {
-            console.error("Error signing up:", error);
-            alert(error.response.data.message);
-          });
-      } else {
-        // Implement sign-in logic here
-        Axios.post("http://localhost:3001/login", {
-          username: username,
-          password: password,
-        })
-          .then((response) => {
-            console.log(response.data.message);
-            console.log(response.data.userInfo);
-            //login
-            setLoginStatus(response.data.userInfo);
-            setAuth(true);
-            closeSignUpPopup();
-          })
-          .catch((error) => {
-            console.error("Error signing in:", error);
-            if (error.response && error.response.status === 404) {
-              // Handle 404 error (user not found) here
-              alert("User Not Found");
-            } else {
-              // Handle other errors
-              alert(
-                error.response
-                  ? error.response.data.message
-                  : "Unknown error occurred"
-              );
-            }
-          });
-      }
-    };
-    // eslint-disable-next-line
-    const handleForgotPassword = (event) => {
-      event.preventDefault();
-      // Implement forgot password logic here
-    };
-
-    return (
-      <div className="signup-popup" id="signupPopup">
-        <div className="signup-content">
-          <span className="close" onClick={closeSignUpPopup}>
-            &times;
-          </span>{" "}
-          {/*<!-- Close button -->*/}
-          <h2>
-            {forgotPassword
-              ? "Forgot Password"
-              : isSignUp
-              ? "Sign Up"
-              : "Sign In"}
-          </h2>
-          {!forgotPassword && (
-            <form id="signupForm" onSubmit={handleSubmit}>
-              {isSignUp && (
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={formValues.email}
-                  onChange={(e) =>
-                    setFormValues({ ...formValues, email: e.target.value })
-                  }
-                  required
-                />
-              )}
-              <input
-                type="text"
-                placeholder="Username"
-                value={formValues.username}
-                onChange={(e) =>
-                  setFormValues({ ...formValues, username: e.target.value })
-                }
-                required
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={formValues.password}
-                onChange={(e) =>
-                  setFormValues({ ...formValues, password: e.target.value })
-                }
-                required
-              />
-              <button type="submit">{isSignUp ? "Sign Up" : "Sign In"}</button>
-              <a href="/#" onClick={toggleForm}>
-                Sign {isSignUp ? "Up" : "In"}
-              </a>
-            </form>
-          )}
-          {!isSignUp && !forgotPassword && (
-            <a href="/#" onClick={toggleForgotPassword}>
-              Forgot Password?
-            </a>
-          )}
-          {forgotPassword && (
-            <div>
-              <input type="text" placeholder="Enter your email" required />
-              <button type="submit">Reset Password</button>
-              <a href="/#" onClick={toggleForgotPassword}>
-                Sign In
-              </a>
-            </div>
-          )}
-        </div>
-      </div>
-    );
+  const updateLoginStatus = (status) => {
+    setLoginStatus(status);
   };
 
   return (
@@ -250,7 +111,7 @@ const Home = () => {
               Mode <button onClick={lightMode}>Light</button> /{" "}
               <button onClick={darkMode}>Dark</button>
             </a>
-            <a href="/#">Settings</a>
+            <a href="/#" onClick={openSettings}>Settings</a>
             <a href="/#" onClick={handleLogOut}>
               Log Out
             </a>
@@ -322,6 +183,7 @@ const Home = () => {
       </div>
 
       <AuthForm setLoginStatus={setLoginStatus} setAuth={setAuth} />
+      <UserSettings updateLoginStatus={updateLoginStatus} userID={loginStatus.id} email={loginStatus.email} username={loginStatus.username}/>
     </div>
   );
 };
