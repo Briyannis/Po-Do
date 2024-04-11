@@ -7,6 +7,7 @@ const ToDoList = ({ loginStatusID, auth }) => {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
   const [newTaskDate, setNewTaskDate] = useState("");
+  const [descrip, setDescrip] = useState("");
   const TIME_LIMIT = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   const CHECK_INTERVAL = 60 * 60 * 1000; // 1 hour in milliseconds
 
@@ -18,12 +19,17 @@ const ToDoList = ({ loginStatusID, auth }) => {
     setNewTaskDate(event.target.value);
   }
 
+  function handleDescInputChange(event) {
+    setDescrip(event.target.value);
+  }
+
   function addTask() {
-    if (newTask.trim() !== "" && newTaskDate.trim() !== "") {
-      const task = { task: newTask, date: newTaskDate };
+    if (newTask.trim() !== "" && descrip.trim() !== "" && newTaskDate.trim() !== "") {
+      const task = { task: newTask, descrip: descrip, date: newTaskDate };
       setTasks((t) => [...t, task]);
       setNewTask("");
       setNewTaskDate("");
+      setDescrip("");
       Axios.post("http://localhost:3001/tasks/podoDB/insertTask", {
         userID: loginStatusID,
         ...task,
@@ -53,8 +59,8 @@ const ToDoList = ({ loginStatusID, auth }) => {
 
   //add guest task and save tasks
   function guestAddTask() {
-    if (newTask.trim() !== "" && newTaskDate.trim() !== "") {
-      const task = { task: newTask, date: newTaskDate, timestamp: Date.now() };
+    if (newTask.trim() !== "" && descrip.trim() !== "" && newTaskDate.trim() !== "") {
+      const task = { task: newTask, descrip: descrip, date: newTaskDate, timestamp: Date.now()};
 
       // Retrieve existing tasks from local storage
       const tasks = JSON.parse(localStorage.getItem("guestTasks")) || [];
@@ -72,12 +78,17 @@ const ToDoList = ({ loginStatusID, auth }) => {
       // Clear input fields
       setNewTask("");
       setNewTaskDate("");
+      setDescrip("");
     }
   }
 
   //localStorage.removeItem("guestTasks");
 
   useEffect(() => {
+    if(auth){
+      localStorage.removeItem("guestTasks");
+      setTasks(null);
+    }
     // Load guest tasks from local storage
     const guestTasks = JSON.parse(localStorage.getItem("guestTasks")) || [];
 
@@ -95,7 +106,7 @@ const ToDoList = ({ loginStatusID, auth }) => {
     }, CHECK_INTERVAL);
 
     return () => clearInterval(interval);
-  }, [CHECK_INTERVAL, TIME_LIMIT]);
+  }, [CHECK_INTERVAL, TIME_LIMIT, auth]);
 
   // Retrieve the task from the user task table to delete
   function deleteTask(index) {
@@ -182,6 +193,14 @@ const ToDoList = ({ loginStatusID, auth }) => {
               </div>
               <div>
                 <input
+                  type="text"
+                  placeholder="Enter Descriptions..."
+                  value={descrip}
+                  onChange={handleDescInputChange}
+                />
+              </div>
+              <div>
+                <input
                   type="date"
                   className="date-input"
                   value={newTaskDate}
@@ -220,6 +239,14 @@ const ToDoList = ({ loginStatusID, auth }) => {
                   placeholder="Enter a task..."
                   value={newTask}
                   onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <input
+                  type="text"
+                  placeholder="Enter Descriptions..."
+                  value={descrip}
+                  onChange={handleDescInputChange}
                 />
               </div>
               <div>

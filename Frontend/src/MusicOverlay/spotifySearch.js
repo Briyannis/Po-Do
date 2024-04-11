@@ -2,6 +2,7 @@ import React from "react";
 import "./MusicOverlay.css";
 import { useState, useEffect} from "react";
 import Axios from "axios";
+import ArtistAlbumTracks from "./ArtistAlbumTracks"
 
 const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
 
@@ -11,7 +12,6 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
   const [artistTracks, setArtistTracks] = useState([]);
   const [artistAlbums, setArtistAlbums] = useState([]);
   const [artistSelectedAlbum, setArtistSelectedAlbum] = useState([]);
-  const [ArtistAlbumTracks, setArtistAlbumTracks] = useState([]);
 
   
 
@@ -20,10 +20,10 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
     //gets albums tracks
     const albumsTracks = async () => {
       try{
-        //console.log(selectedAlbum.id)
-        if (selectedAlbum) {
-          
-          //console.log("id is", id)
+        if (selectedAlbum && (selectedAlbum !== null)) {
+
+          console.log(selectedAlbum.id)
+
         const response = await Axios.get(`http://localhost:3001/spotify-api/albums/${selectedAlbum.id}`, {
           headers: {
             'Authorization': `Bearer ${spotifyAccessToken}`,
@@ -31,6 +31,7 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
           }
         });
             setAlbumTracks(response.data);
+            console.log(response.data);
       }
       }catch(error){
         console.log(error);
@@ -40,10 +41,9 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
     //gets artisit tracks
     const artistsTracks = async () => {
       try{
-         //console.log(selectedArtist)
-        if (selectedArtist) {
+        if (selectedArtist && (selectedArtist !== null)) {
 
-          //console.log(selectedArtist.id);
+          console.log("Artist", selectedArtist);
 
         const response = await Axios.get(`http://localhost:3001/spotify-api/artistsTracks/${selectedArtist.id}`, {
           headers: {
@@ -53,7 +53,7 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
         });
         //console.log("data", response.data.tracks);
         setArtistTracks(response.data.tracks);
-      }
+       }
       }catch(error){
         console.log(error);
       }
@@ -61,48 +61,28 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
 //gets artist albums
     const artistsAlbums = async () => {
       try{
-         //console.log(selectedArtist)
-        if (selectedArtist) {
-         // console.log("id", selectedArtist)
-        const response = await Axios.get(`http://localhost:3001/spotify-api/artistsAlbums/${selectedArtist.id}`, {
-          headers: {
-            'Authorization': `Bearer ${spotifyAccessToken}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        //console.log("albums2", response.data);
-        setArtistAlbums(response.data);
-      }
+       if (selectedArtist && (selectedArtist !== null)) {
+         console.log("id", selectedArtist)
+         const response = await Axios.get(`http://localhost:3001/spotify-api/artistsAlbums/${selectedArtist.id}`, {
+           headers: {
+             'Authorization': `Bearer ${spotifyAccessToken}`,
+             'Content-Type': 'application/json'
+        }
+         });
+         //console.log("albums2", response.data);
+         setArtistAlbums(response.data);
+       }
       }catch(error){
-        console.log(error);
+         console.log(error);
       }
     }
 
-    //get selected album tracks
-    // const artistAlbumsTracks = async () => {
-    //   try{
-    //     //console.log(selectedAlbum.id)
-    //     if (artistSelectedAlbum) {
-    //       //console.log("id is", id)
-    //     const response = await Axios.get(`http://localhost:3001/spotify-api/albums/${artistSelectedAlbum.id}`, {
-    //       headers: {
-    //         'Authorization': `Bearer ${spotifyAccessToken}`,
-    //         'Content-Type': 'application/json'
-    //       }
-    //     });
-    //     setArtistAlbumTracks(response.data);
-    //   }
-    //   }catch(error){
-    //     console.log(error);
-    //   }
-    // }
+  
     albumsTracks(); 
 
     artistsTracks();
 
     artistsAlbums();
-
-    //artistAlbumsTracks();
 
   }, [selectedAlbum, spotifyAccessToken, selectedArtist, artistSelectedAlbum, artistAlbums]);
 
@@ -111,6 +91,10 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
     setArtistAlbums(null); 
     setArtistTracks(null);
     setSelectedArtist(null);
+  }
+
+  const artistAlbumBack = () => {
+    setArtistSelectedAlbum(null);
   }
 
    //console.log("tracks:", artistTracks);
@@ -123,6 +107,7 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
 
     
   return (
+    <div className="scroll">
     <div >
       {//search results list
       }
@@ -217,7 +202,8 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
 }
       {selectedArtist && artistTracks && artistAlbums && (
         <div>
-          <button onClick={artistBack}/>
+          {selectedArtist && (<button onClick={artistBack}/>) }
+          {!artistSelectedAlbum ? (<button onClick={artistAlbumBack}/>) : (null)}
           <h2>{selectedArtist.name}</h2>
           
           <h4>Albums</h4>
@@ -241,26 +227,12 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
 {
   //shows selected artist albums
 }
-          {artistSelectedAlbum && (
-          <div>
-            <button onClick={setArtistAlbumTracks(null)}/>
-            <h4>{artistSelectedAlbum.name}</h4>
-            <ul>
-              {ArtistAlbumTracks.map((track, index) => (
-                <li key={index}>
-                  {artistSelectedAlbum.images.length ? (
-                    <img
-                      width={"15%"}
-                      src={artistSelectedAlbum.images[2].url}
-                      alt="Album Cover"
-                    />
-                  ) : (
-                    <div>No Image</div>
-                  )}
-                  {track.name}</li>
-              ))}
-            </ul>
-          </div>
+          {!artistSelectedAlbum && (
+          <ArtistAlbumTracks
+          artistSelectedAlbum={artistSelectedAlbum}
+          spotifyAccessToken={spotifyAccessToken}
+        />
+
       )}
 
           <h4>Songs</h4>
@@ -283,6 +255,7 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };

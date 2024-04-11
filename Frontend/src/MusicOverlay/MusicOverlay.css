@@ -12,6 +12,21 @@
   padding: 20px;
 }
 
+.scroll {
+    scrollbar-width: thin;
+    width: 300px;
+    overflow-y: auto;
+    max-height: 400px;
+}
+.scroll-side {
+  display: inline-block;
+  scrollbar-width: thin;
+  width: 300px;
+  overflow: auto;
+  white-space: nowrap;
+  max-height: 400px;
+}
+
 .dark-mode .music-player {
   background-color: #1f2c2e;
   color: #fff; /* Adjust text color for better visibility */
@@ -32,6 +47,19 @@
   margin-bottom: 20px;
   box-sizing: border-box;
 }
+
+.search-result button {
+  /* Reset button styles */
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  /* Add custom styles */
+  padding: 5px 10px;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: #fff;
+}
+
 
 .hamburger-menu {
   position: absolute;

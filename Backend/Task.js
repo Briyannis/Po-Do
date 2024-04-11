@@ -28,6 +28,7 @@ router.get("/podoDB/getTask", async (req, res) => {
         taskID: row.TaskID,
         task: row.Title,
         date: row.Date,
+        descrip: row.Descrip,
       }));
   
       console.log("Tasks found:", tasks);
@@ -44,6 +45,7 @@ router.get("/podoDB/getTask", async (req, res) => {
       const userID = req.body.userID;
       const task = req.body.task;
       const date = req.body.date;
+      const descrip = req.body.descrip;
   
       if (!userID) {
         res.status(400).send("userID NULL");
@@ -53,6 +55,7 @@ router.get("/podoDB/getTask", async (req, res) => {
         userID: userID,
         title: task,
         date: date,
+        descrip: descrip
       });
       console.log("Insert result:", result.success);
   

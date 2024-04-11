@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const request = require("request");
 const querystring = require("querystring");
-const https = require("https");
 const Axios = require("axios");
 
 module.exports = function(podoDB){
@@ -76,12 +75,14 @@ router.post("/tokens", async (req, res) => {
   };
   
   router.get("/login", function (req, res) {
+    var state = generateRandomString(16);
     res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
       client_id: process.env.SPOTIFY_CLIENT_ID,
-      scope: 'user-read-private user-read-email',
-      redirect_uri
+      scope: 'streaming user-read-private user-read-email user-modify-playback-state user-read-playback-state user-read-currently-playing',
+      redirect_uri,
+      state
     }));
   });
   
@@ -96,20 +97,21 @@ router.post("/tokens", async (req, res) => {
       },
       headers: {
         'Authorization' : 'Basic ' +
-          (Buffer.from(`${process.env.SPOTIFY_CLIENT_ID} : ${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')),
+          Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64'),
+          'Content-Type' : 'application/x-www-form-urlencoded'
       },
       json: true,
     };
     request.post(authOptions, function (error, response, body) {
-      if (!error && response.statusCode === 200) {
       var access_token = body.access_token;
       var refresh_token = body.refresh_token;
+      //console.log(body);
+      //console.log(access_token, "refresh", refresh_token )
       let uri = process.env.FRONTEND_URI || "http://localhost:3000";
-      console.log(access_token);
+      //console.log(access_token);
       res.redirect(
         uri + "?access_token=" + access_token + "&refresh_token=" + refresh_token
       );
-    }
     });
   });
   
@@ -205,7 +207,12 @@ router.post("/tokens", async (req, res) => {
   //gets album tracks
   router.get("/albums/:id", async (req, res) => {
     try {
-        const {id} = req.params;
+        const id = req.params.id;
+        console.log(id);
+        if(id === null){
+          console.log(id)
+          res.status(500).json({error: "ID is undefinded"})
+        }
         const spotifyToken = req.header("Authorization").split("Bearer ")[1];
         const response = await Axios.get(`https://api.spotify.com/v1/albums/${id}`, {
           headers: {
@@ -218,10 +225,8 @@ router.post("/tokens", async (req, res) => {
           res.json(data.tracks.items);
         }else if(response.status === 400){
             res.json(response.data)
-        } else {
-            res.send(id);
-          throw new Error('Failed to fetch album tracks');
         }
+        
     } catch (error) {
         console.error('Error fetching album tracks:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -276,6 +281,22 @@ router.get("/artistsAlbums/:id", async (req, res) => {
         console.error('Error fetching artist info:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
+});
+//player route
+router.post("/playerSDK", async (req, res) => {
+  try {
+    const response = await Axios.get("https://sdk.scdn.co/spotify-player.js");
+    const sdkScript = response.data;
+
+    // Set appropriate content type header
+    res.setHeader("Content-Type", "text/javascript");
+    // Send the SDK script content
+    res.send(sdkScript);
+    //console.log(sdkScript)
+  } catch (error) {
+    console.error("Error fetching Spotify Web Playback SDK:", error);
+    res.status(500).send(`Error fetching Spotify Web Playback SDK: ${error.message}`);
+  }
 });
   
 

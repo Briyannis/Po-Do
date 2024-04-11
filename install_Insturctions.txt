@@ -14,3 +14,6 @@ Backend installs:
 Timer installs:
 npm install --save react-circular-progressbar
 npm install react-slider
+
+runtime refresh error:
+-> ReactScripts -> node_modules -> runtime refresh(delete folder)

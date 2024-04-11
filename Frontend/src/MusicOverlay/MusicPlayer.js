@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./MusicOverlay.css";
-import SideMenu from "./SideMenu";
 import Playback from "./musicCover";
 import Axios from "axios";
 import SpotifyLogin from "./spotifyLogin"
@@ -17,65 +16,13 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
 
   const [initialRender, setInitialRender] = useState(true);
   const [selectedTrack, setSelectedTrack] = useState([]);
-  const [hasPostedTokens, setHasPostedTokens] = useState(false);
-  const [loggedin, setLoggedin] = useState(true);
+  const [loggedin, setLoggedin] = useState(false);
 
   const [searchResults, setSearchResults] = useState({
     albums: [],
     artists: [],
     tracks: [],
   });
-
-  const handleSpotifyLogin = () => {
-    window.location = "http://localhost:3001/spotify-api/login";
-    setLoggedin(true);
-  };
-
-  useEffect(() => {
-    const queryString = window.location.search;
-    const params = new URLSearchParams(queryString);
-    const refreshToken = params.get("refresh_token");
-    const accessToken = params.get("access_token");
-    if (refreshToken && accessToken && !hasPostedTokens && loggedin) {
-      Axios.post("http://localhost:3001/spotify-api/tokens", {
-        userID: loginStatusID,
-        accessToken: refreshToken,
-        refreshToken: accessToken,
-      })
-        .then((response) => {
-          const {
-            refreshToken: storedRefreshToken,
-            accessToken: storedAccessToken,
-          } = response.data;
-          setSpotifyRefreshToken(storedRefreshToken);
-          setSpotifyAccessToken(storedAccessToken);
-          setHasPostedTokens(true);
-        })
-        .catch((error) => {
-          console.error("Error adding task:", error);
-          console.log(error.response.data.message);
-        });
-    }
-    const refreshAccessToken = () => {
-      if (spotifyRefreshToken) {
-        Axios.get(
-          `http://localhost:3001/spotify-api/refresh_token?refresh_token=${spotifyRefreshToken}`
-        )
-          .then((response) => {
-            const { access_token } = response.data;
-            setSpotifyAccessToken(access_token);
-          })
-          .catch((error) => {
-            console.error("Error refreshing access token:", error);
-          });
-      }
-    };
-
-    refreshAccessToken();
-  }, [loginStatusID, hasPostedTokens, spotifyRefreshToken, loggedin]);
-
-  
-
 
 
 useEffect(() => {
@@ -88,22 +35,23 @@ useEffect(() => {
           (!spotifyAccessToken || !spotifyRefreshToken))
       ) {
         // First, fetch tokens from the server
-        const tokensResponse = await Axios.get(`http://localhost:3001/spotify-api/gettokens?userID=${loginStatusID}`);
-        const tokensData = tokensResponse.data;
-        setSpotifyAccessToken(tokensData.accessToken);
-        setSpotifyRefreshToken(tokensData.refreshToken);
+        const response = await Axios.get(`http://localhost:3001/spotify-api/gettokens?userID=${loginStatusID}`);
+        const tokens = response.data;
+        if((tokens.accessToken !== "undefined") && (tokens.refreshToken !== "undefiend")){setSpotifyAccessToken(tokens.accessToken);
+        setSpotifyRefreshToken(tokens.refreshToken);
         setInitialRender(false);
+        setLoggedin(true);}
 
         // Then, refresh the access token if needed and save
-        if (tokensData.refreshToken && tokensData.refreshToken !== "undefined") {
-          const refreshResponse = await Axios.get(`http://localhost:3001/spotify-api/refresh_token?refresh_token=${tokensData.refreshToken}`);
+        if (tokens.refreshToken || tokens.refreshToken !== "undefined") {
+          const refreshResponse = await Axios.get(`http://localhost:3001/spotify-api/refresh_token?refresh_token=${tokens.refreshToken}`);
           const { access_token } = refreshResponse.data;
-          console.log(access_token);
+          //console.log(access_token);
           setSpotifyAccessToken(access_token);
-          await Axios.post("http://localhost:3001/spotify-api/save_access_token", {
+          await Axios.post("http://localhost:3001/spotify-api/tokens", {
           userID: loginStatusID,
           accessToken: access_token,
-          refreshToken: tokensData.refreshToken
+          refreshToken: tokens.refreshToken
         });
         }
       }
@@ -135,8 +83,9 @@ useEffect(() => {
     if (event) {
       event.preventDefault();
     }
-    console.log(spotifyAccessToken);
+    //console.log(spotifyAccessToken);
     try {
+      console.log(spotifyAccessToken)
       const response = await Axios.get(
         "http://localhost:3001/spotify-api/search",
         {
@@ -159,18 +108,12 @@ useEffect(() => {
     }
   };
 
-  const handleTrackSelection = (selectedTrack) => {
-    // Do something with the selected track, such as updating state
-    setSelectedTrack(selectedTrack);
+  // const handleTrackSelection = (selectedTrack) => {
+  //   // Do something with the selected track, such as updating state
+  //   setSelectedTrack(selectedTrack);
 
-    console.log(selectedTrack);
-  };
-
-  const handleTokenReceived = (refreshToken, accessToken) => {
-    setSpotifyRefreshToken(refreshToken);
-    setSpotifyAccessToken(accessToken);
-    setHasPostedTokens(true);
-  };
+  //   console.log(selectedTrack);
+  // };
 
 
   //apple music connection
@@ -194,8 +137,8 @@ useEffect(() => {
           <div className="bar"></div>
           <div className="bar"></div>
         </button>
-        {loggedin && (
-          <button onClick={handleSpotifyLogin}>Login</button>
+        {!loggedin && (
+          <SpotifyLogin loginStatusID={loginStatusID}/>
         )}
       </div>
       {showSideMenu ? (
@@ -210,13 +153,13 @@ useEffect(() => {
               <button type="submit">Search</button>
             </form></div>
         {searchResults ? (
-          <SearchResult searchResults={searchResults} spotifyAccessToken={spotifyAccessToken}  onTrackSelect={handleTrackSelection}/>
+          <SearchResult searchResults={searchResults} spotifyAccessToken={spotifyAccessToken}  />
         ) : (null)}
       </div>
         </div>
       ) : <div>
       {
-        //<Playback  currentSong={selectedTrack} token={spotifyAccessToken}/>
+      <Playback  currentSong={selectedTrack} token={spotifyAccessToken}/>
       }
     </div>}
     </div>
