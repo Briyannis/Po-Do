@@ -58,3 +58,7 @@
 .calendar-day:hover {
   background-color: #f5f5f5;
 }
+
+.dark-mode .calendar{
+  color: black;
+}
