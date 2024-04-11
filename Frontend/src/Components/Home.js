@@ -10,7 +10,7 @@ import AuthForm from "./LoginSignupForm";
 import Cookies from "js-cookie";
 import MusicPlayer from "../MusicOverlay/MusicPlayer";
 import Calendar from "../calender/test";
-import UserSettings from "./UserSettings"
+import UserSettings from "./UserSettings";
 
 const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
@@ -111,7 +111,9 @@ const Home = () => {
               Mode <button onClick={lightMode}>Light</button> /{" "}
               <button onClick={darkMode}>Dark</button>
             </a>
-            <a href="/#" onClick={openSettings}>Settings</a>
+            <a href="/#" onClick={openSettings}>
+              Settings
+            </a>
             <a href="/#" onClick={handleLogOut}>
               Log Out
             </a>
@@ -176,14 +178,19 @@ const Home = () => {
             </div>
           ) : (
             <div className="music-overlay">
-              <h2>Sign IN</h2>
+              <h2>Sign In</h2>
             </div>
           )}
         </div>
       </div>
 
       <AuthForm setLoginStatus={setLoginStatus} setAuth={setAuth} />
-      <UserSettings updateLoginStatus={updateLoginStatus} userID={loginStatus.id} email={loginStatus.email} username={loginStatus.username}/>
+      <UserSettings
+        updateLoginStatus={updateLoginStatus}
+        userID={loginStatus.id}
+        email={loginStatus.email}
+        username={loginStatus.username}
+      />
     </div>
   );
 };

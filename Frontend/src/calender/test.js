@@ -31,13 +31,11 @@ const Calendar = () => {
     <div className="calendar">
       <div className="calendar-header">
         <button onClick={prevMonth}>Prev</button>
-        <h2>
-          {currentDate.format("MMMM YYYY")}
-          <button className="toggle-full-month" onClick={toggleFullMonth}>
-            {showFullMonth ? "^" : "v"}
-          </button>
-        </h2>
+        <h2>{currentDate.format("MMMM YYYY")}</h2>
         <button onClick={nextMonth}>Next</button>
+        <button className="toggle-full-month" onClick={toggleFullMonth}>
+          {showFullMonth ? "^" : "v"}
+        </button>
       </div>
       <div className="calendar-body">
         <div className="calendar-weekdays">
