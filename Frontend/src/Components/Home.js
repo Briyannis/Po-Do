@@ -139,17 +139,14 @@ const Home = () => {
               Sign Up
             </a>
           </div>
-          {/*<!-- Add light/dark option, settings, signup/login, -->*/}
         </header>
       )}
 
-      <div className="content">
+<div className="content">
         <div className="calendar-container">
           <Calendar />
         </div>
-        <div>
-          <ToDoList loginStatusID={loginStatus.id} auth={auth} />
-        </div>
+        <ToDoList loginStatusID={loginStatus.id} auth={auth} />
         <div className="cont">
           <div className="container">
             <main>
@@ -167,23 +164,20 @@ const Home = () => {
               </SettingsContext.Provider>
             </main>
           </div>
-
-          {auth ? (
-            <div className="music-overlay">
+          <div className="music-overlay">
+            {auth ? (
               <MusicPlayer
                 auth={auth}
                 loginStatusID={loginStatus.id}
                 darkmode={darkmode}
               />
-            </div>
-          ) : (
-            <div className="music-overlay">
+            ) : (
               <h2>Sign In</h2>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-
+     
       <AuthForm setLoginStatus={setLoginStatus} setAuth={setAuth} />
       <UserSettings
         updateLoginStatus={updateLoginStatus}
