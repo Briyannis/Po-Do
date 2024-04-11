@@ -95,7 +95,7 @@ function Timer() {
           />
         )}
       </div>
-      <div style={{ marginTop: "20px" }}>
+      <div style={{ marginTop: "20px", backgroundColor:"lightslategray", }}>
         <SettingsButton onClick={() => settingsInfo.setShowSettings(true)} />
       </div>
     </div>
