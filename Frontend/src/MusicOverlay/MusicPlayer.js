@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import "./MusicOverlay.css";
 import Playback from "./musicCover";
 import Axios from "axios";
-import SpotifyLogin from "./spotifyLogin"
+import SpotifyLogin from "./spotifyLogin";
 import SearchResult from "./spotifySearch";
+import FreePlayback from "./SpotFreePlayer";
 
 const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
   //spotify api connection
@@ -13,6 +14,8 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
   const [spotifyAccessToken, setSpotifyAccessToken] = useState();
   // eslint-disable-next-line
   const [spotifyRefreshToken, setSpotifyRefreshToken] = useState();
+  const [accStatus, setAccStatus] = useState("");
+  //let stat = "";
 
   const [initialRender, setInitialRender] = useState(true);
   const [selectedTrack, setSelectedTrack] = useState([]);
@@ -24,50 +27,69 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
     tracks: [],
   });
 
+  useEffect(() => {
+    const SpotTokens = async () => {
+      try {
+        if (
+          initialRender ||
+          (auth &&
+            loginStatusID &&
+            (!spotifyAccessToken || !spotifyRefreshToken))
+        ) {
 
-useEffect(() => {
-  const SpotTokens = async () => {
-    try {
-      if (
-        initialRender ||
-        (auth &&
-          loginStatusID &&
-          (!spotifyAccessToken || !spotifyRefreshToken))
-      ) {
-        // First, fetch tokens from the server
-        const response = await Axios.get(`http://localhost:3001/spotify-api/gettokens?userID=${loginStatusID}`);
-        const tokens = response.data;
-        if((tokens.accessToken !== "undefined") && (tokens.refreshToken !== "undefiend")){setSpotifyAccessToken(tokens.accessToken);
-        setSpotifyRefreshToken(tokens.refreshToken);
-        setInitialRender(false);
-        setLoggedin(true);}
+          //setAccStatus("");
+          // First, fetch tokens from the server
+          const response = await Axios.get(
+            `http://localhost:3001/spotify-api/gettokens?userID=${loginStatusID}`
+          );
+          const tokens = response.data;
 
-        // Then, refresh the access token if needed and save
-        if (tokens.refreshToken || tokens.refreshToken !== "undefined") {
-          const refreshResponse = await Axios.get(`http://localhost:3001/spotify-api/refresh_token?refresh_token=${tokens.refreshToken}`);
-          const { access_token } = refreshResponse.data;
-          //console.log(access_token);
-          setSpotifyAccessToken(access_token);
-          await Axios.post("http://localhost:3001/spotify-api/tokens", {
-          userID: loginStatusID,
-          accessToken: access_token,
-          refreshToken: tokens.refreshToken
-        });
+          const status = tokens.accStatus
+          
+          if (
+            tokens.accessToken !== null &&
+            tokens.refreshToken !== null &&
+            tokens.accStatus !== null
+          ) {
+            setSpotifyAccessToken(tokens.accessToken);
+            setSpotifyRefreshToken(tokens.refreshToken);
+            setAccStatus(status);
+            setInitialRender(false);
+            setLoggedin(true);
+          }
+
+          // Then, refresh the access token if needed and save
+          if (tokens.refreshToken || tokens.refreshToken !== "undefined") {
+            //console.log(tokens.accStatus)
+            const refreshResponse = await Axios.get(
+              `http://localhost:3001/spotify-api/refresh_token?refresh_token=${tokens.refreshToken}`
+            );
+            const { access_token } = refreshResponse.data;
+            //console.log(accStatus);
+            setSpotifyAccessToken(access_token);
+            await Axios.post("http://localhost:3001/spotify-api/tokens", {
+              userID: loginStatusID,
+              accStatus: tokens.accStatus,
+              accessToken: access_token,
+              refreshToken: tokens.refreshToken
+            });
+          }
         }
+      } catch (error) {
+        console.error("Error fetching or refreshing tokens:", error);
       }
-    } catch (error) {
-      console.error("Error fetching or refreshing tokens:", error);
-    }
-  };
+    };
 
-  
-  SpotTokens();
+    SpotTokens();
+    //console.log(`updated status: ${accStatus}`);
   }, [
     auth,
     loginStatusID,
+    loggedin,
     spotifyAccessToken,
     spotifyRefreshToken,
     initialRender,
+    accStatus
   ]);
 
   //checks user is logged out to remove their token
@@ -78,14 +100,14 @@ useEffect(() => {
     }
   }, [auth]);
 
-  //search spotify api 
+  //search spotify api
   const searchSpotify = async (event) => {
     if (event) {
       event.preventDefault();
     }
     //console.log(spotifyAccessToken);
     try {
-      console.log(spotifyAccessToken)
+      console.log(spotifyAccessToken);
       const response = await Axios.get(
         "http://localhost:3001/spotify-api/search",
         {
@@ -115,7 +137,6 @@ useEffect(() => {
   //   console.log(selectedTrack);
   // };
 
-
   //apple music connection
 
   //youtube music connection
@@ -137,31 +158,33 @@ useEffect(() => {
           <div className="bar"></div>
           <div className="bar"></div>
         </button>
-        {!loggedin && (
-          <SpotifyLogin loginStatusID={loginStatusID}/>
-        )}
+        {!loggedin && <SpotifyLogin loginStatusID={loginStatusID} />}
       </div>
       {showSideMenu ? (
         <div className="side-menu">
           <div>
-        <div>
-          <form onSubmit={searchSpotify}>
-        <input
-                type="text"
-                onChange={(e) => setSearchKey(e.target.value)}
+            <div>
+              <form onSubmit={searchSpotify}>
+                <input
+                  type="text"
+                  onChange={(e) => setSearchKey(e.target.value)}
+                />
+                <button type="submit">Search</button>
+              </form>
+            </div>
+            {searchResults ? (
+              <SearchResult
+                searchResults={searchResults}
+                spotifyAccessToken={spotifyAccessToken}
               />
-              <button type="submit">Search</button>
-            </form></div>
-        {searchResults ? (
-          <SearchResult searchResults={searchResults} spotifyAccessToken={spotifyAccessToken}  />
-        ) : (null)}
-      </div>
+            ) : null}
+          </div>
         </div>
-      ) : <div>
-      {
-      <Playback  currentSong={selectedTrack} token={spotifyAccessToken}/>
-      }
-    </div>}
+      ) : (
+        <div>
+          {accStatus === "free" ? (<FreePlayback currentSong={selectedTrack} token={spotifyAccessToken}/>) : (<Playback currentSong={selectedTrack} token={spotifyAccessToken} />)}
+        </div>
+      )}
     </div>
   );
 };

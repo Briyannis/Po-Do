@@ -1,6 +1,7 @@
 import "./MusicOverlay.css";
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
+import "spotify-audio-element";
 
 const Playback = ({ currentSong, token }) => {
   const [showQueue, setShowQueue] = useState(false);
@@ -63,18 +64,22 @@ const Playback = ({ currentSong, token }) => {
   useEffect(() => {
     const initializeSpotifySDK = async () => {
       try {
-        const response = await Axios.post("http://localhost:3001/spotify-api/playerSDK");
-        {const script = document.createElement("script");
-        //console.log(response)
-        //script.src = "http://localhost:3001/spotify-api/playerSDK";
-        const data = response.data
-        //console.log(data);
-        script.type = 'text/javascript';
-        script.text = data
+        const response = await Axios.post(
+          "http://localhost:3001/spotify-player/playerSDK"
+        );
+        {
+          const script = document.createElement("script");
+          //console.log(response)
+          //script.src = "http://localhost:3001/spotify-api/playerSDK";
+          const data = response.data;
+          //console.log(data);
+          script.type = "text/javascript";
+          script.text = data;
 
-        //console.log(script)
+          //console.log(script)
 
-        document.body.appendChild(script);}
+          document.body.appendChild(script);
+        }
 
         window.onSpotifyWebPlaybackSDKReady = () => {
           //console.log("SDK ready");
@@ -130,7 +135,7 @@ const Playback = ({ currentSong, token }) => {
     if (player) {
       player
         .togglePlay({
-          uris: [uri],
+          uris: uri,
         })
         .then(() => {
           console.log("Playback started for track:", uri);
@@ -155,6 +160,15 @@ const Playback = ({ currentSong, token }) => {
         ) : (
           <p>-</p>
         )}
+        <div>
+          <media-control-bar style="width: 100%">
+            <media-play-button></media-play-button>
+            <media-seek-backward-button seekoffset="15"></media-seek-backward-button>
+            <media-seek-forward-button seekoffset="15"></media-seek-forward-button>
+            <media-time-range></media-time-range>
+            <media-time-display showduration remaining></media-time-display>
+          </media-control-bar>
+        </div>
         <div>
           <button onClick={() => handlePlaySong(PiscesURI)}>Play Pisces</button>
           <button onClick={handlePrevious}>Previous</button>

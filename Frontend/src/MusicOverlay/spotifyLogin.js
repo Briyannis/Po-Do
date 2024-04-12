@@ -14,8 +14,19 @@ const SpotifyLogin = ({ loginStatusID }) => {
   
         if ((refreshToken && accessToken) && (refreshToken !== null && accessToken !== null) ) {
           try {
+            const accInfo = await Axios.get("http://localhost:3001/spotify-api/userInfo", {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`
+           }
+            })
+            const data = accInfo.data
+            //console.log(data.product);
+            const accStatus = data.product
+
+            
             await Axios.post("http://localhost:3001/spotify-api/tokens", {
               userID: loginStatusID,
+              accStatus: accStatus,
               accessToken: accessToken,
               refreshToken: refreshToken
             });

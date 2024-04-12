@@ -12,6 +12,7 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
   const [artistTracks, setArtistTracks] = useState([]);
   const [artistAlbums, setArtistAlbums] = useState([]);
   const [artistSelectedAlbum, setArtistSelectedAlbum] = useState([]);
+  const [once, setOnce] = useState(1);
 
   
 
@@ -41,7 +42,8 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
     //gets artisit tracks
     const artistsTracks = async () => {
       try{
-        if (selectedArtist && (selectedArtist !== null)) {
+        if (selectedArtist && (selectedArtist !== null) && once === 1) {
+          setOnce(0);
 
           console.log("Artist", selectedArtist);
 
@@ -62,7 +64,7 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
     const artistsAlbums = async () => {
       try{
        if (selectedArtist && (selectedArtist !== null)) {
-         console.log("id", selectedArtist)
+         //console.log("id", selectedArtist)
          const response = await Axios.get(`http://localhost:3001/spotify-api/artistsAlbums/${selectedArtist.id}`, {
            headers: {
              'Authorization': `Bearer ${spotifyAccessToken}`,
@@ -84,7 +86,7 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect}) => {
 
     artistsAlbums();
 
-  }, [selectedAlbum, spotifyAccessToken, selectedArtist, artistSelectedAlbum, artistAlbums]);
+  }, [selectedAlbum, once, spotifyAccessToken, selectedArtist, artistSelectedAlbum, artistAlbums]);
 
   //back to search results from artist
   const artistBack = () => {
