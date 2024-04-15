@@ -1,0 +1,27 @@
+.progress-container {
+    width: 100%;
+    background-color: #ddd;
+    height: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+  }
+  
+  .progress-bar {
+    height: 100%;
+    background-color: #27ae60;
+    border-radius: 5px;
+  }
+  
+  .timestamps {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+  }
+
+  .playButton {
+    background: none;
+    border: none;
+    width: fit-content;
+    align-items: center;
+    justify-content: center;
+  }

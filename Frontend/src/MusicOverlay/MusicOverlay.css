@@ -5,13 +5,22 @@
 }
 
 .music-player {
-  max-width: 600px;
-  margin: 50px auto;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  position: relative;
 }
+
+.side-menu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff; /* Adjust styling as needed */
+  z-index: 100; /* Ensure side menu appears above player */
+}
+
+.content-container {
+  position: relative; /* Ensure proper stacking context */
+}
+
 
 .scroll {
     scrollbar-width: thin;

@@ -81,6 +81,8 @@ module.exports = function (podoDB) {
     return text;
   };
 
+  const scopes = ["streaming", "user-read-private","user-read-email", "user-modify-playback-state","user-read-playback-state","user-read-currently-playing"]
+
   router.get("/login", function (req, res) {
     var state = generateRandomString(16);
     res.redirect(
@@ -88,8 +90,7 @@ module.exports = function (podoDB) {
         querystring.stringify({
           response_type: "code",
           client_id: process.env.SPOTIFY_CLIENT_ID,
-          scope:
-            "streaming user-read-private user-read-email user-modify-playback-state user-read-playback-state user-read-currently-playing",
+          scope: scopes.join(" "),
           redirect_uri,
           state,
         })
@@ -160,6 +161,7 @@ module.exports = function (podoDB) {
     request.post(authOptions, function (error, response, body) {
       if (!error && response.statusCode === 200) {
         const access_token = body.access_token;
+        console.log(access_token)
         res.send({ access_token: access_token });
       } else {
         res.send({ error: "invalid_grant" });
@@ -325,6 +327,36 @@ module.exports = function (podoDB) {
     } catch (error) {
       console.error("Error fetching artist info:", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  router.put("/playTrack/:uri/:token/:deviceID", async (req, res) => {
+    try {
+      const trackURI = [req.params.uri];
+      const spotifyToken = req.params.token
+      const deviceID = req.params.deviceID
+      //console.log(req.headers)
+      //const token = req.header("Authorization").split("Bearer ")[1];
+  
+      //console.log(deviceID)
+  
+      const response = await Axios.put(
+        `https://api.spotify.com/v1/me/player/play?device_id=${deviceID}`,  
+        { 
+          uris: trackURI,
+          position_ms: 0
+      },
+        {
+          headers: {
+            "Authorization": `Bearer ${spotifyToken}`
+          },
+        }
+      );
+      //console.log("player", response.data);
+      res.json(response.data);
+    } catch (error) {
+      console.error("Error playing song:", error);
+      res.status(500).send(`Error playing song: ${error}`);
     }
   });
 

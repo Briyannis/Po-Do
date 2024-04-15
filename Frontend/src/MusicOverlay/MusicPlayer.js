@@ -51,7 +51,7 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
             tokens.refreshToken !== null &&
             tokens.accStatus !== null
           ) {
-            setSpotifyAccessToken(tokens.accessToken);
+           await setSpotifyAccessToken(tokens.accessToken);
             setSpotifyRefreshToken(tokens.refreshToken);
             setAccStatus(status);
             setInitialRender(false);
@@ -65,7 +65,7 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
               `http://localhost:3001/spotify-api/refresh_token?refresh_token=${tokens.refreshToken}`
             );
             const { access_token } = refreshResponse.data;
-            //console.log(accStatus);
+            //console.log(access_token);
             setSpotifyAccessToken(access_token);
             await Axios.post("http://localhost:3001/spotify-api/tokens", {
               userID: loginStatusID,
@@ -82,14 +82,12 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
 
     SpotTokens();
     //console.log(`updated status: ${accStatus}`);
+
+    const interval = setInterval(() => {
+      SpotTokens();
+    }, 3300000); 
   }, [
-    auth,
-    loginStatusID,
-    loggedin,
-    spotifyAccessToken,
-    spotifyRefreshToken,
-    initialRender,
-    accStatus
+    auth
   ]);
 
   //checks user is logged out to remove their token
@@ -130,16 +128,14 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
     }
   };
 
-  // const handleTrackSelection = (selectedTrack) => {
-  //   // Do something with the selected track, such as updating state
-  //   setSelectedTrack(selectedTrack);
+  const onTrackSelect = (selected_Track) => {
+    setSelectedTrack(selected_Track);
+    setShowSideMenu(false)
+  };
 
+  // useEffect(() => {
   //   console.log(selectedTrack);
-  // };
-
-  //apple music connection
-
-  //youtube music connection
+  // }, [selectedTrack]);
 
   //music player UI
   const [showSideMenu, setShowSideMenu] = useState(false);
@@ -160,31 +156,33 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
         </button>
         {!loggedin && <SpotifyLogin loginStatusID={loginStatusID} />}
       </div>
-      {showSideMenu ? (
-        <div className="side-menu">
-          <div>
+      <div className="content-container">
+        {showSideMenu && (
+          <div className="side-menu">
             <div>
-              <form onSubmit={searchSpotify}>
-                <input
-                  type="text"
-                  onChange={(e) => setSearchKey(e.target.value)}
+              <div>
+                <form onSubmit={searchSpotify}>
+                  <input type="text" onChange={(e) => setSearchKey(e.target.value)} />
+                  <button type="submit">Search</button>
+                </form>
+              </div>
+              {searchResults && (
+                <SearchResult
+                  searchResults={searchResults}
+                  spotifyAccessToken={spotifyAccessToken}
+                  onTrackSelect={onTrackSelect}
                 />
-                <button type="submit">Search</button>
-              </form>
+              )}
             </div>
-            {searchResults ? (
-              <SearchResult
-                searchResults={searchResults}
-                spotifyAccessToken={spotifyAccessToken}
-              />
-            ) : null}
           </div>
+        )}
+        <div className="player-container">
+          {/* Render the player component */}
+          {loggedin && (
+            <Playback currentSong={selectedTrack} token={spotifyAccessToken} />
+          )}
         </div>
-      ) : (
-        <div>
-          {accStatus === "free" ? (<FreePlayback currentSong={selectedTrack} token={spotifyAccessToken}/>) : (<Playback currentSong={selectedTrack} token={spotifyAccessToken} />)}
-        </div>
-      )}
+      </div>
     </div>
   );
 };

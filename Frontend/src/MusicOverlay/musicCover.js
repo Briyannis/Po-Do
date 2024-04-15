@@ -1,65 +1,14 @@
 import "./MusicOverlay.css";
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
-import "spotify-audio-element";
+import Player from "./Player";
 
 const Playback = ({ currentSong, token }) => {
-  const [showQueue, setShowQueue] = useState(false);
-  const [player, setPlayer] = useState(null);
-  //const [script, setScript] = useState();
-
-  const hardcodedQueue = [
-    { title: "Song 4", artist: "Artist 4" },
-    { title: "Song 5", artist: "Artist 5" },
-    { title: "Song 6", artist: "Artist 6" },
-  ];
-
-  const PiscesURI = "spotify:track:5t8NXa2fugcTPsTfhVILmS";
-
-  const handleToggleQueue = () => {
-    setShowQueue(!showQueue);
-  };
-
-  const handlePlayPause = () => {
-    if (player) {
-      player
-        .togglePlay()
-        .then(() => {
-          console.log("Playback toggled");
-        })
-        .catch((error) => {
-          console.error("Error toggling playback:", error);
-        });
-    }
-  };
-
-  const handlePrevious = () => {
-    if (player) {
-      player
-        .previousTrack()
-        .then(() => {
-          console.log("Previous track played");
-        })
-        .catch((error) => {
-          console.error("Error playing previous track:", error);
-        });
-    }
-  };
-
-  const handleNext = () => {
-    if (player) {
-      player
-        .nextTrack()
-        .then(() => {
-          console.log("Next track played");
-        })
-        .catch((error) => {
-          console.error("Error playing next track:", error);
-        });
-    }
-  };
-
-  window.onSpotifyWebPlaybackSDKReady = () => {};
+  const [player, setPlayer] = useState(undefined);
+  const [device_id, setDeviceID] = useState();
+  const [songName, setSongName] = useState();
+  const [albumImage, setAlbumImage] = useState();
+  const [songArtist, setSongArtist] = useState();
 
   useEffect(() => {
     const initializeSpotifySDK = async () => {
@@ -67,126 +16,92 @@ const Playback = ({ currentSong, token }) => {
         const response = await Axios.post(
           "http://localhost:3001/spotify-player/playerSDK"
         );
-        {
-          const script = document.createElement("script");
-          //console.log(response)
-          //script.src = "http://localhost:3001/spotify-api/playerSDK";
-          const data = response.data;
-          //console.log(data);
-          script.type = "text/javascript";
-          script.text = data;
 
-          //console.log(script)
-
-          document.body.appendChild(script);
-        }
-
-        window.onSpotifyWebPlaybackSDKReady = () => {
-          //console.log("SDK ready");
-          const player = new window.Spotify.Player({
-            name: "Web Playback SDK",
-            getOAuthToken: (cb) => {
-              cb(token);
-            },
-            volume: 0.5,
-          });
-
-          setPlayer(player);
-
-          //console.log("new", player);
-
-          player.addListener("ready", ({ device_id }) => {
-            console.log("Player is ready", device_id);
-            //newPlayer.connect();
-          });
-
-          player.addListener("not_ready", ({ device_id }) => {
-            console.log("Device ID has gone offline", device_id);
-          });
-
-          player.connect();
-        };
+        const script = document.createElement("script");
+        //script.src = "https://sdk.scdn.co/spotify-player.js";
+        //script.async = true;
+        script.type = "text/javascript";
+        script.text = response.data;
+        document.body.appendChild(script);
       } catch (error) {
         console.error("Error fetching Spotify Web Playback SDK:", error);
       }
     };
 
     initializeSpotifySDK();
-  }, [token]);
+    //console.log(token)
 
-  const handlePlay = () => {
-    if (player && currentSong && currentSong.uri) {
-      player
-        .play({
-          uris: [currentSong.uri],
-        })
-        .then(() => {
-          console.log("Playback started");
-        })
-        .catch((error) => {
-          console.error("Error starting playback:", error);
-        });
-    }
-  };
+    window.onSpotifyWebPlaybackSDKReady = async () => {
+      //console.log(token);
+      const newPlayer = new window.Spotify.Player({
+        name: "Web Playback SDK",
+        getOAuthToken: (cb) => {
+          cb(token);
+        },
 
-  const handlePlaySong = (uri) => {
-    //console.log(player.device_id);
-    console.log(player);
-    if (player) {
-      player
-        .togglePlay({
-          uris: uri,
-        })
-        .then(() => {
-          console.log("Playback started for track:", uri);
-        })
-        .catch((error) => {
-          console.error("Error starting playback:", error);
-        });
-    }
+        enableMediaSession: true,
+
+        volume: 0.5,
+      });
+
+      setPlayer(newPlayer);
+      //console.log(newPlayer);
+
+      await newPlayer.addListener("ready", ({ device_id }) => {
+        console.log("Ready with Device ID", device_id);
+        setDeviceID(device_id);
+      });
+
+      await newPlayer.addListener("not_ready", ({ device_id }) => {
+        console.log("Device ID has gone offline", device_id);
+      });
+
+      await newPlayer.connect().then((success) => {
+        if (success) {
+          console.log(
+            "The Web Playback SDK successfully connected to Spotify!"
+          );
+        }
+      });
+
+      setPlayer(newPlayer);
+    };
+  }, []);
+
+  const songInfo = (song_Info) => {
+    const{album, name, artists} = song_Info
+    setAlbumImage(album.images)
+    setSongName(name);
+    setSongArtist(artists[0].name)
   };
+  
+  // useEffect(() => {
+  //   console.log(songName, albumImage, songArtist);
+  // }, [songName, albumImage, songArtist]);
+
 
   return (
     <div>
-      <div style={{ display: showQueue ? "none" : "block" }}>
-        <h2>Now Playing</h2>
-        {currentSong ? (
-          <div>
-            <img src={currentSong.cover} alt="Album Cover" />
-            <p>
-              {currentSong.title} - {currentSong.artist}
-            </p>
-          </div>
-        ) : (
-          <p>-</p>
-        )}
+      <h2>Now Playing</h2>
+      {currentSong ? (
         <div>
-          <media-control-bar style="width: 100%">
-            <media-play-button></media-play-button>
-            <media-seek-backward-button seekoffset="15"></media-seek-backward-button>
-            <media-seek-forward-button seekoffset="15"></media-seek-forward-button>
-            <media-time-range></media-time-range>
-            <media-time-display showduration remaining></media-time-display>
-          </media-control-bar>
+          {albumImage && (<img src={albumImage[1].url} alt="Album Cover" />)}
+          <p>
+            {songName} - {songArtist}
+          </p>
         </div>
-        <div>
-          <button onClick={() => handlePlaySong(PiscesURI)}>Play Pisces</button>
-          <button onClick={handlePrevious}>Previous</button>
-          <button onClick={handlePlayPause}>Play/Pause</button>
-          <button onClick={handleNext}>Next</button>
-          <button onClick={handleToggleQueue}>Show Queue</button>
-        </div>
-      </div>
-      <div style={{ display: showQueue ? "block" : "none" }}>
-        <h2>Queue</h2>
-        <ul>
-          {hardcodedQueue.map((song, index) => (
-            <li key={index}>
-              {song.title} - {song.artist}
-            </li>
-          ))}
-        </ul>
-        <button onClick={handleToggleQueue}>Hide Queue</button>
+      ) : (
+        <p>-</p>
+      )}
+      
+      <div>
+        <Player
+          token={token}
+          currentSong={currentSong}
+          player={player}
+          playerID={device_id}
+          songInfo={songInfo}
+        />
       </div>
     </div>
   );

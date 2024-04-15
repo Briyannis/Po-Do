@@ -37,7 +37,7 @@ const SpotifyLogin = ({ loginStatusID }) => {
       };
   
       code();
-    }, [loginStatusID]);
+    }, []);
   
     const handleSpotifyLogin = () => {
       window.location.href = "http://localhost:3001/spotify-api/login";

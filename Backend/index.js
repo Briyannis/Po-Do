@@ -4,7 +4,8 @@ const cors = require("cors");
 const express = require("express");
 const podo = express();
 const NoSQLClient = require("oracle-nosqldb").NoSQLClient;
-const {createProxyMiddleware} = require('http-proxy-middleware');
+const { createProxyMiddleware } = require('http-proxy-middleware');
+
 
 /*Connects to DB*/
 const podoDB = new NoSQLClient({
@@ -46,16 +47,18 @@ podo.use('/spotify-api', spotify);
 podo.use('/spotify-player', player);
 
 // Define the target URL where you want to forward requests
-const target = 'http://localhost:3001';
+const target = "http://localhost:3001";
 
-// Create the proxy middleware
-const proxyMiddleware = createProxyMiddleware({
-    target,
+//console.log(target)
+
+podo.use(
+  '/spotify-api/**',
+  createProxyMiddleware({
+    target: target,
     changeOrigin: true,
-});
+  }),
+);
 
-podo.use('/spotify-api/**', proxyMiddleware);
-//podo.use('/SpotifyPlayer', proxyMiddleware);
 
 
 /*Opens in port 3001 */

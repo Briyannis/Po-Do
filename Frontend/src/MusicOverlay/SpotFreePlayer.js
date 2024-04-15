@@ -1,6 +1,19 @@
 import "./MusicOverlay.css";
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
+import 'spotify-audio-element';
+import {
+  MediaController,
+  MediaControlBar,
+  MediaTimeRange,
+  MediaTimeDisplay,
+  MediaVolumeRange,
+  MediaPlayButton,
+  MediaSeekBackwardButton,
+  MediaSeekForwardButton,
+  MediaMuteButton,
+} from "media-chrome/dist/react";
+import SpotifyAudioElement  from "spotify-audio-element"
 
 const FreePlayback = ({ currentSong, token }) => {
   const [playbackState, setPlaybackState] = useState(null);
@@ -8,48 +21,9 @@ const FreePlayback = ({ currentSong, token }) => {
   const [showQueue, setShowQueue] = useState(false);
   const [playerID, setPlayerID] = useState(null);
 
-  useEffect(() => {
-    const fetchPlayer = async () => {
-      try {
-        // Retrieve the user's cavailibe player device
-        const response = await Axios.get(
-          "http://localhost:3001/spotify-player/player",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
 
-        console.log(response.data);
-        setPlaybackState(response.data);
-      } catch (error) {
-        console.error("Error fetching playback state:", error);
-      }
-    };
-    const fetchPlaybackState = async () => {
-      try {
-        // Retrieve the user's current playback state
-        const response = await Axios.get(
-          "http://localhost:3001/spotify-player/playerState",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
 
-        console.log(response.data);
-        setPlaybackState(response.data);
-      } catch (error) {
-        console.error("Error fetching playback state:", error);
-      }
-    };
-    fetchPlayer();
-    fetchPlaybackState();
-
-    console.log(playbackState);
-  }, []);
+  
 
   const hardcodedQueue = [
     { title: "Song 4", artist: "Artist 4" },
@@ -57,35 +31,11 @@ const FreePlayback = ({ currentSong, token }) => {
     { title: "Song 6", artist: "Artist 6" },
   ];
 
-  const PiscesURI = "spotify:track:5t8NXa2fugcTPsTfhVILmS";
-
   const handleToggleQueue = () => {
     setShowQueue(!showQueue);
   };
 
-  const handlePlayPause = () => {};
 
-  const handlePrevious = () => {};
-
-  const handleNext = () => {};
-
-  const handlePlay = () => {};
-
-  const handlePlaySong = async (uri) => {
-    try {
-      await Axios.put(
-        `http://localhost:3001/spotify-player/playTrack/${uri}/${token}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        }
-      );
-    } catch (error) {
-      console.error("Error playing song:", error);
-    }
-  };
 
   return (
     <div>
@@ -102,13 +52,20 @@ const FreePlayback = ({ currentSong, token }) => {
           <p>-</p>
         )}
         <div>
-          <button onClick={() => handlePlaySong(PiscesURI)}>
-            Play Bitch Pisces
-          </button>
-          <button onClick={handlePrevious}>Previous</button>
-          <button onClick={handlePlayPause}>Play/Pause</button>
-          <button onClick={handleNext}>Next</button>
-          <button onClick={handleToggleQueue}>Show Queue</button>
+          <MediaController>
+          <div><spotify-audio
+              src="https://open.spotify.com/track/6NcS85K1ZlXAZecBL6msRa"
+              slot="media"
+              controls
+            ></spotify-audio>
+            </div>
+            <MediaControlBar>
+              <MediaPlayButton></MediaPlayButton>
+              <MediaTimeRange></MediaTimeRange>
+              <MediaTimeDisplay showDuration></MediaTimeDisplay>
+              <MediaVolumeRange></MediaVolumeRange>
+            </MediaControlBar>
+          </MediaController>
         </div>
       </div>
       <div style={{ display: showQueue ? "block" : "none" }}>
