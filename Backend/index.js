@@ -39,12 +39,16 @@ podo.use(bodyParser.urlencoded({ extended: true }));
 const auth = require('./Auth')(podoDB);
 const tasks = require('./Task')(podoDB);
 const spotify = require('./Spotify')(podoDB);
+const queue = require('./Queue')(podoDB);
 const player = require('./SpotifyPlayer');
+const Spotifylibray = require('./UserSpotifyLibrary');
 
 podo.use('/auth', auth);
 podo.use('/tasks', tasks);
 podo.use('/spotify-api', spotify);
 podo.use('/spotify-player', player);
+podo.use('/queue', queue);
+podo.use('/Spotifylibray', Spotifylibray);
 
 // Define the target URL where you want to forward requests
 const target = "http://localhost:3001";

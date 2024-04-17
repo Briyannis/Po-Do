@@ -42,13 +42,13 @@ const verifyUser = (req, res, next) => {
       const password = req.body.password;
       const email = req.body.email;
   
-      // Check if username already exists
+      // Checks if username already exists
       const usernameExists = await isUsernameTaken(username);
       if (usernameExists) {
         return res.status(400).json({ message: "Username already taken" });
       }
   
-      // Check if email already exists
+      // Checks if email already exists
       const emailExists = await isEmailTaken(email);
       if (emailExists) {
         return res.status(400).json({ message: "Email already registered" });
@@ -70,7 +70,7 @@ const verifyUser = (req, res, next) => {
     }
   });
   
-  // Function to check if username is already taken
+  //checks if username is already taken
   async function isUsernameTaken(username) {
     let prepStatement = await podoDB.prepare(
       "SELECT * FROM users WHERE username = ?"
@@ -82,7 +82,7 @@ const verifyUser = (req, res, next) => {
     return result.rows.length > 0;
   }
   
-  // Function to check if email is already taken
+  // checks if email is already taken
   async function isEmailTaken(email) {
     let prepStatement = await podoDB.prepare(
       "SELECT * FROM users WHERE email = ?"
@@ -169,22 +169,6 @@ const verifyUser = (req, res, next) => {
   });
   
   //Update User request
-  router.post("/podoDB/updateUser", async (req, res) => {
-    podoDB.query("", (err, result) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({ message: "Error updating User" });
-      }
-  
-      if (result.affectedRows === 0) {
-        //User record not found in the database
-        return res.status(404).json({ message: "Record not found" });
-      }
-      console.log(result);
-      res.status(200).json({ message: "Table updated successfully" });
-    });
-  });
-
   router.post("/updateUser", async (req, res) => {
     try {
       const username = req.query.username;
@@ -204,7 +188,8 @@ const verifyUser = (req, res, next) => {
       if (user.rows.length === 0) {
         return res.status(404).json({ error: "User not found" });
       }
-  
+
+      //checks user info and auth
       if (username) {
         const usernameExists = await isUsernameTaken(username);
         if (usernameExists) {

@@ -14,7 +14,7 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
   const [spotifyAccessToken, setSpotifyAccessToken] = useState();
   // eslint-disable-next-line
   const [spotifyRefreshToken, setSpotifyRefreshToken] = useState();
-  const [accStatus, setAccStatus] = useState("");
+  const [spotID, setSpotID] = useState();
   //let stat = "";
 
   const [initialRender, setInitialRender] = useState(true);
@@ -36,7 +36,6 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
             loginStatusID &&
             (!spotifyAccessToken || !spotifyRefreshToken))
         ) {
-
           //setAccStatus("");
           // First, fetch tokens from the server
           const response = await Axios.get(
@@ -44,16 +43,17 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
           );
           const tokens = response.data;
 
-          const status = tokens.accStatus
-          
+          //const status = tokens.accStatus;
+          const spotID = tokens.spotID;
+
           if (
             tokens.accessToken !== null &&
             tokens.refreshToken !== null &&
             tokens.accStatus !== null
           ) {
-           await setSpotifyAccessToken(tokens.accessToken);
+            setSpotifyAccessToken(tokens.accessToken);
             setSpotifyRefreshToken(tokens.refreshToken);
-            setAccStatus(status);
+            setSpotID(spotID)
             setInitialRender(false);
             setLoggedin(true);
           }
@@ -71,7 +71,8 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
               userID: loginStatusID,
               accStatus: tokens.accStatus,
               accessToken: access_token,
-              refreshToken: tokens.refreshToken
+              refreshToken: tokens.refreshToken,
+              spotifyID: spotID,
             });
           }
         }
@@ -85,10 +86,8 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
 
     const interval = setInterval(() => {
       SpotTokens();
-    }, 3300000); 
-  }, [
-    auth
-  ]);
+    }, 3300000);
+  }, [auth]);
 
   //checks user is logged out to remove their token
   useEffect(() => {
@@ -128,9 +127,13 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
     }
   };
 
-  const onTrackSelect = (selected_Track) => {
+  const onTrackSelect = async (selected_Track) => {
     setSelectedTrack(selected_Track);
-    setShowSideMenu(false)
+    setShowSideMenu(false);
+    setSearchResults(null);
+    setTimeout(() => {
+      setSelectedTrack([]); 
+    }, 3000);
   };
 
   // useEffect(() => {
@@ -143,6 +146,7 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
   // Toggle side menu visibility
   const toggleSideMenu = () => {
     setShowSideMenu(!showSideMenu);
+    setSearchResults(null);
   };
 
   return (
@@ -154,7 +158,7 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
           <div className="bar"></div>
           <div className="bar"></div>
         </button>
-        {!loggedin && <SpotifyLogin loginStatusID={loginStatusID} />}
+        {!loggedin && spotifyAccessToken && spotifyRefreshToken && (<SpotifyLogin loginStatusID={loginStatusID} />)}
       </div>
       <div className="content-container">
         {showSideMenu && (
@@ -162,7 +166,10 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
             <div>
               <div>
                 <form onSubmit={searchSpotify}>
-                  <input type="text" onChange={(e) => setSearchKey(e.target.value)} />
+                  <input
+                    type="text"
+                    onChange={(e) => setSearchKey(e.target.value)}
+                  />
                   <button type="submit">Search</button>
                 </form>
               </div>
@@ -171,15 +178,20 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
                   searchResults={searchResults}
                   spotifyAccessToken={spotifyAccessToken}
                   onTrackSelect={onTrackSelect}
+                  userID={loginStatusID}
                 />
               )}
+
+              <div>
+                <h3>Library</h3>
+              </div>
             </div>
           </div>
         )}
         <div className="player-container">
           {/* Render the player component */}
           {loggedin && (
-            <Playback currentSong={selectedTrack} token={spotifyAccessToken} />
+            <Playback currentSong={selectedTrack} token={spotifyAccessToken} userID={loginStatusID}/>
           )}
         </div>
       </div>

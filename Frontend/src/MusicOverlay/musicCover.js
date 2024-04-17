@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import Player from "./Player";
 
-const Playback = ({ currentSong, token }) => {
+const Playback = ({ currentSong, token, userID }) => {
   const [player, setPlayer] = useState(undefined);
   const [device_id, setDeviceID] = useState();
   const [songName, setSongName] = useState();
@@ -31,7 +31,7 @@ const Playback = ({ currentSong, token }) => {
     initializeSpotifySDK();
     //console.log(token)
 
-    window.onSpotifyWebPlaybackSDKReady = async () => {
+    window.onSpotifyWebPlaybackSDKReady =  () => {
       //console.log(token);
       const newPlayer = new window.Spotify.Player({
         name: "Web Playback SDK",
@@ -42,27 +42,30 @@ const Playback = ({ currentSong, token }) => {
         enableMediaSession: true,
 
         volume: 0.5,
+        robustness: 'high'
       });
 
       setPlayer(newPlayer);
       //console.log(newPlayer);
 
-      await newPlayer.addListener("ready", ({ device_id }) => {
+       newPlayer.addListener("ready", ({ device_id }) => {
         console.log("Ready with Device ID", device_id);
         setDeviceID(device_id);
       });
 
-      await newPlayer.addListener("not_ready", ({ device_id }) => {
+       newPlayer.addListener("not_ready", ({ device_id }) => {
         console.log("Device ID has gone offline", device_id);
       });
 
-      await newPlayer.connect().then((success) => {
+       newPlayer.connect().then((success) => {
         if (success) {
           console.log(
             "The Web Playback SDK successfully connected to Spotify!"
           );
         }
       });
+
+
 
       setPlayer(newPlayer);
     };
@@ -101,6 +104,7 @@ const Playback = ({ currentSong, token }) => {
           player={player}
           playerID={device_id}
           songInfo={songInfo}
+          userID={userID}
         />
       </div>
     </div>

@@ -12,7 +12,9 @@ module.exports = function (podoDB) {
       const userID = req.body.userID;
       const access_token = req.body.accessToken;
       const refresh_token = req.body.refreshToken;
-      const accStatus = req.body.accStatus
+      const accStatus = req.body.accStatus;
+      const spotID = req.body.spotifyID;
+      console.log(`spotify id ${spotID}`);
 
       if (!userID) {
         res.status(400).send("userID NULL");
@@ -22,7 +24,8 @@ module.exports = function (podoDB) {
         userID: userID,
         accStatus: accStatus,
         accessToken: access_token,
-        refreshToken: refresh_token
+        refreshToken: refresh_token,
+        spotifyID: spotID,
       });
       console.log("Insert result:", result.success);
 
@@ -51,12 +54,13 @@ module.exports = function (podoDB) {
           .send(`No tokens found for the user with ID: ${userID}`);
       }
 
-      console.log("status", userTokens.rows[0].accStatus)
+      console.log("status", userTokens.rows[0].accStatus);
 
       const tokens = {
         accessToken: userTokens.rows[0].accessToken,
         refreshToken: userTokens.rows[0].refreshToken,
-        accStatus: userTokens.rows[0].accStatus
+        accStatus: userTokens.rows[0].accStatus,
+        spotID: userTokens.rows[0].spotifyID,
       };
 
       console.log("tokens found:", tokens);
@@ -81,7 +85,16 @@ module.exports = function (podoDB) {
     return text;
   };
 
-  const scopes = ["streaming", "user-read-private","user-read-email", "user-modify-playback-state","user-read-playback-state","user-read-currently-playing"]
+  const scopes = [
+    "streaming",
+    "user-read-private",
+    "user-read-email",
+    "user-modify-playback-state",
+    "user-read-playback-state",
+    "user-read-currently-playing",
+    "user-library-read",
+    "user-library-modify"
+  ];
 
   router.get("/login", function (req, res) {
     var state = generateRandomString(16);
@@ -161,7 +174,7 @@ module.exports = function (podoDB) {
     request.post(authOptions, function (error, response, body) {
       if (!error && response.statusCode === 200) {
         const access_token = body.access_token;
-        console.log(access_token)
+        console.log(access_token);
         res.send({ access_token: access_token });
       } else {
         res.send({ error: "invalid_grant" });
@@ -322,7 +335,7 @@ module.exports = function (podoDB) {
 
       if (response.status === 200) {
         res.send(response.data);
-        //console.log(response.data);
+        console.log(response.data);
       }
     } catch (error) {
       console.error("Error fetching artist info:", error);
@@ -333,22 +346,22 @@ module.exports = function (podoDB) {
   router.put("/playTrack/:uri/:token/:deviceID", async (req, res) => {
     try {
       const trackURI = [req.params.uri];
-      const spotifyToken = req.params.token
-      const deviceID = req.params.deviceID
+      const spotifyToken = req.params.token;
+      const deviceID = req.params.deviceID;
       //console.log(req.headers)
       //const token = req.header("Authorization").split("Bearer ")[1];
-  
+
       //console.log(deviceID)
-  
+
       const response = await Axios.put(
-        `https://api.spotify.com/v1/me/player/play?device_id=${deviceID}`,  
-        { 
+        `https://api.spotify.com/v1/me/player/play?device_id=${deviceID}`,
+        {
           uris: trackURI,
-          position_ms: 0
-      },
+          position_ms: 0,
+        },
         {
           headers: {
-            "Authorization": `Bearer ${spotifyToken}`
+            Authorization: `Bearer ${spotifyToken}`,
           },
         }
       );

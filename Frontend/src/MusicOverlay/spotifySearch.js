@@ -3,8 +3,16 @@ import "./MusicOverlay.css";
 import { useState, useEffect } from "react";
 import Axios from "axios";
 import ArtistAlbumTracks from "./ArtistAlbumTracks";
+import { IconContext } from "react-icons";
+import { GrFormAdd } from "react-icons/gr";
 
-const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect }) => {
+const SearchResult = ({
+  searchResults,
+  spotifyAccessToken,
+  onTrackSelect,
+  userID,
+  
+}) => {
   const [selectedAlbum, setSelectedAlbum] = useState();
   const [selectedArtist, setSelectedArtist] = useState();
   const [albumTracks, setAlbumTracks] = useState([]);
@@ -110,6 +118,28 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect }) => {
     setArtistSelectedAlbum(null);
   };
 
+  const AddToQueue = async (track) => {
+    //console.log(`track ${track}, device id ${device_ID}`)
+    try {
+      await Axios.post(
+        `http://localhost:3001/queue/addQueue/${track.uri}`,
+        { userID: userID }
+      ).catch((error) => {
+        console.log(`error inserting: ${error}`);
+      });
+
+      //console.log(addQueue.data);
+
+      const res = await Axios.post(
+        `http://localhost:3001/spotify-player/addToQueue/${track.uri}/${spotifyAccessToken}`
+      );
+      console.log(res.status);
+      
+      //addToParentQueue(track.uri);
+    } catch (error) {
+      console.error("Error adding track to queue:", error);
+    }
+  };
   //console.log("tracks:", artistTracks);
   //console.log("albums:", artistAlbums);
   //console.log("artist albums:", artistsAlbumTracks);
@@ -126,8 +156,8 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect }) => {
         }
         {!selectedAlbum && !selectedArtist && (
           <>
-            <h4>Songs</h4>
             <div className="scroll">
+              <h4>Songs</h4>
               {searchResults.tracks.map((track, index) => (
                 <div key={index} className="search-result">
                   <li onClick={() => onTrackSelect(track)}>
@@ -142,11 +172,25 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect }) => {
                     )}
                     <p>Track: {track.name}</p>
                   </li>
+
+                  <div>
+                    <button
+                      onClick={() => {
+                        AddToQueue(track);
+                      }}
+                    >
+                      <IconContext.Provider
+                        value={{ size: "1em", color: "#27AE60" }}
+                      >
+                        <GrFormAdd />
+                      </IconContext.Provider>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
-            <h4>Artists</h4>
             <div className="scroll">
+              <h4>Artists</h4>
               {searchResults.artists.map((artist, index) => (
                 <div key={index} className="search-result">
                   <li onClick={() => setSelectedArtist(artist)}>
@@ -160,8 +204,8 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect }) => {
                 </div>
               ))}
             </div>
-            <h4>Albums</h4>
             <div className="scroll">
+              <h4>Albums</h4>
               {searchResults.albums.map((album, index) => (
                 <div key={index} className="search-result">
                   <li onClick={() => setSelectedAlbum(album)}>
@@ -197,17 +241,17 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect }) => {
               {albumTracks.map((track, index) => (
                 <div key={index}>
                   <li onClick={() => onTrackSelect(track)}>
-                  {selectedAlbum.images.length ? (
-                    <img
-                      width={"15%"}
-                      src={selectedAlbum.images[2].url}
-                      alt="Album Cover"
-                    />
-                  ) : (
-                    <div>No Image</div>
-                  )}
-                  {track.name}
-                </li>
+                    {selectedAlbum.images.length ? (
+                      <img
+                        width={"15%"}
+                        src={selectedAlbum.images[2].url}
+                        alt="Album Cover"
+                      />
+                    ) : (
+                      <div>No Image</div>
+                    )}
+                    {track.name}
+                  </li>
                 </div>
               ))}
             </ul>
@@ -225,23 +269,23 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect }) => {
 
             {selectedArtist && (
               <div>
-                <h4>Albums</h4>
                 <div className="scroll">
+                  <h4>Albums</h4>
                   <ul>
                     {artistAlbums.map((album, index) => (
                       <div key={index}>
-                      <li onClick={() => setArtistSelectedAlbum(album)}>
-                        {album.images.length ? (
-                          <img
-                            width={"15%"}
-                            src={album.images[2].url}
-                            alt="Album Cover"
-                          />
-                        ) : (
-                          <div>No Image</div>
-                        )}
-                        {album.name}
-                      </li>
+                        <li onClick={() => setArtistSelectedAlbum(album)}>
+                          {album.images.length ? (
+                            <img
+                              width={"15%"}
+                              src={album.images[2].url}
+                              alt="Album Cover"
+                            />
+                          ) : (
+                            <div>No Image</div>
+                          )}
+                          {album.name}
+                        </li>
                       </div>
                     ))}
                   </ul>
@@ -255,33 +299,42 @@ const SearchResult = ({ searchResults, spotifyAccessToken, onTrackSelect }) => {
               <ArtistAlbumTracks
                 artistSelectedAlbum={artistSelectedAlbum}
                 spotifyAccessToken={spotifyAccessToken}
-                trackSelected = {trackSelected}
+                trackSelected={trackSelected}
               />
             )}
 
-            {selectedArtist && (artistSelectedAlbum === null) &&(<div>
-              <h4>Songs</h4>
-            <div className="scroll">
-              <ul>
-                {artistTracks.map((track, index) => (
-                  <div key={index}>
-                  <li onClick={() => onTrackSelect(track)}>
-                    {track.album.images.length ? (
-                      <img
-                        width={"15%"}
-                        src={track.album.images[2].url}
-                        alt="Track Cover"
-                      />
-                    ) : (
-                      <div>No Image</div>
-                    )}
-                    {track.name}
-                  </li>
-                  </div>
-                ))}
-              </ul>
-            </div>
-            </div>)}
+            {selectedArtist && (
+              <div>
+                <div className="scroll">
+                  <h4>Songs</h4>
+                  <ul>
+                    {artistTracks.map((track, index) => (
+                      <div key={index}>
+                        <li onClick={() => onTrackSelect(track)}>
+                          {track.album.images.length ? (
+                            <img
+                              width={"15%"}
+                              src={track.album.images[2].url}
+                              alt="Track Cover"
+                            />
+                          ) : (
+                            <div>No Image</div>
+                          )}
+                          {track.name}
+                        </li>
+                        <button>
+                          <IconContext.Provider
+                            value={{ size: "1em", color: "#27AE60" }}
+                          >
+                            <GrFormAdd />
+                          </IconContext.Provider>
+                        </button>
+                      </div>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
