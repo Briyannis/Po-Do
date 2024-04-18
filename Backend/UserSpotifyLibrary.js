@@ -9,15 +9,15 @@ router.get("/usersSavedAlbums/:token", async (req, res) => {
       //const token = req.header("Authorization").split("Bearer ")[1];
   
       const response = await Axios.get(
-        `https://api.spotify.com/v1/me/albums?limit=50&`,  
+        `https://api.spotify.com/v1/me/albums?limit=50`,  
         {
           headers: {
             "Authorization": `Bearer ${spotifyToken}`,
           },
         }
       );
-      //console.log("player", response.data);
-      res.json(response.data);
+      //console.log("player", response.data.items);
+      res.json(response.data.items.map(item => item.album))
      // console.log(deviceID)
     } catch (error) {
   
@@ -33,15 +33,15 @@ router.get("/usersSavedAlbums/:token", async (req, res) => {
       //const token = req.header("Authorization").split("Bearer ")[1];
   
       const response = await Axios.get(
-        `https://api.spotify.com/v1/me/albums?limit=50&`,  
+        `https://api.spotify.com/v1/me/tracks?limit=50&market=us`,  
         {
           headers: {
             "Authorization": `Bearer ${spotifyToken}`,
           },
         }
       );
-      //console.log("player", response.data);
-      res.json(response.data);
+      //console.log("player", response.data.items);
+      res.json(response.data.items.map(item => item.track))
      // console.log(deviceID)
     } catch (error) {
   
@@ -56,7 +56,7 @@ router.get("/usersSavedAlbums/:token", async (req, res) => {
         const userID = req.params.userID
 
     const response = await Axios.get(
-        `https://api.spotify.com/v1/users/${userID}/playlistss?limit=50&`,  
+        `https://api.spotify.com/v1/users/${userID}/playlists?limit=50&`,  
         {
           headers: {
             "Authorization": `Bearer ${spotifyToken}`,

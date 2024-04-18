@@ -4,9 +4,9 @@ import Playback from "./musicCover";
 import Axios from "axios";
 import SpotifyLogin from "./spotifyLogin";
 import SearchResult from "./spotifySearch";
-import FreePlayback from "./SpotFreePlayer";
+import Library from "./SpotifyLibrary";
 
-const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
+const MusicPlayer = ({ auth, loginStatusID, darkmode, spotLog }) => {
   //spotify api connection
 
   const [searchKey, setSearchKey] = useState();
@@ -131,6 +131,9 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
     setSelectedTrack(selected_Track);
     setShowSideMenu(false);
     setSearchResults(null);
+    await Axios.delete(
+      `http://localhost:3001/queue/DeleteAQueue/${loginStatusID}`
+    );
     setTimeout(() => {
       setSelectedTrack([]); 
     }, 3000);
@@ -158,7 +161,7 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
           <div className="bar"></div>
           <div className="bar"></div>
         </button>
-        {!loggedin && spotifyAccessToken && spotifyRefreshToken && (<SpotifyLogin loginStatusID={loginStatusID} />)}
+        {!loggedin && (<SpotifyLogin loginStatusID={loginStatusID} />)}
       </div>
       <div className="content-container">
         {showSideMenu && (
@@ -183,7 +186,7 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode }) => {
               )}
 
               <div>
-                <h3>Library</h3>
+                <Library token={spotifyAccessToken} spotID={spotID} onTrackSelect={onTrackSelect} userID={loginStatusID}/>
               </div>
             </div>
           </div>

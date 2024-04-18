@@ -10,6 +10,7 @@ const Playback = ({ currentSong, token, userID }) => {
   const [albumImage, setAlbumImage] = useState();
   const [songArtist, setSongArtist] = useState();
 
+
   useEffect(() => {
     const initializeSpotifySDK = async () => {
       try {
@@ -31,8 +32,12 @@ const Playback = ({ currentSong, token, userID }) => {
     initializeSpotifySDK();
     //console.log(token)
 
-    window.onSpotifyWebPlaybackSDKReady =  () => {
-      //console.log(token);
+    window.onSpotifyWebPlaybackSDKReady = async () => {
+      const res = await Axios.get(
+        "http://localhost:3001/spotify-player/SYSVolume"
+      );
+      //console.log(res.data.volume)
+      const vol = res.data.volume / 100
       const newPlayer = new window.Spotify.Player({
         name: "Web Playback SDK",
         getOAuthToken: (cb) => {
@@ -41,7 +46,7 @@ const Playback = ({ currentSong, token, userID }) => {
 
         enableMediaSession: true,
 
-        volume: 0.5,
+        volume: vol,
         robustness: 'high'
       });
 

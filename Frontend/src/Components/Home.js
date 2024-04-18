@@ -16,6 +16,7 @@ const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [workMinutes, setWorkMinutes] = useState(45);
   const [breakMinutes, setBreakMinutes] = useState(15);
+  const [spotLog, setSpotLog] = useState(false)
 
   //login states
   const [loginStatus, setLoginStatus] = useState("");
@@ -94,6 +95,10 @@ const Home = () => {
     setLoginStatus(status);
   };
 
+  const loggedIn = (loggedIn) => {
+    setSpotLog(loggedIn);
+  }
+
   return (
     <div>
       {auth ? (
@@ -170,6 +175,7 @@ const Home = () => {
                 auth={auth}
                 loginStatusID={loginStatus.id}
                 darkmode={darkmode}
+                spotLog={spotLog}
               />
             ) : (
               <h2>Sign In</h2>
@@ -184,6 +190,7 @@ const Home = () => {
         userID={loginStatus.id}
         email={loginStatus.email}
         username={loginStatus.username}
+        loggedIn={loggedIn}
       />
     </div>
   );

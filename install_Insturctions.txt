@@ -8,7 +8,8 @@ Backend installs:
 - npm install nodemon querystring
 - npm install cors request bcrypt
 - npm install oracle-nosqldb jsonwebtoken
--npm install express-session cookie-parser
+- npm install express-session cookie-parser
+- npm install loudness
 - npm run devStart
 
 Timer installs:

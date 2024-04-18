@@ -11,7 +11,6 @@ const SearchResult = ({
   spotifyAccessToken,
   onTrackSelect,
   userID,
-  
 }) => {
   const [selectedAlbum, setSelectedAlbum] = useState();
   const [selectedArtist, setSelectedArtist] = useState();
@@ -20,6 +19,7 @@ const SearchResult = ({
   const [artistAlbums, setArtistAlbums] = useState([]);
   const [artistSelectedAlbum, setArtistSelectedAlbum] = useState([]);
   const [once, setOnce] = useState(1);
+  const [hideArtist, setHidArtist] = useState(false);
 
   // depends? selectedAlbum, once, spotifyAccessToken, selectedArtist, artistSelectedAlbum, artistAlbums
 
@@ -109,11 +109,12 @@ const SearchResult = ({
   };
 
   const artistAlbumBack = () => {
+    setHidArtist(false);
     setArtistSelectedAlbum(null);
   };
 
   //artist album track selection
-  const trackSelected = (selected_Track) => {
+  const trackSelected = async (selected_Track) => {
     onTrackSelect(selected_Track);
     setArtistSelectedAlbum(null);
   };
@@ -121,10 +122,9 @@ const SearchResult = ({
   const AddToQueue = async (track) => {
     //console.log(`track ${track}, device id ${device_ID}`)
     try {
-      await Axios.post(
-        `http://localhost:3001/queue/addQueue/${track.uri}`,
-        { userID: userID }
-      ).catch((error) => {
+      await Axios.post(`http://localhost:3001/queue/addQueue/${track.uri}`, {
+        userID: userID,
+      }).catch((error) => {
         console.log(`error inserting: ${error}`);
       });
 
@@ -134,7 +134,7 @@ const SearchResult = ({
         `http://localhost:3001/spotify-player/addToQueue/${track.uri}/${spotifyAccessToken}`
       );
       console.log(res.status);
-      
+
       //addToParentQueue(track.uri);
     } catch (error) {
       console.error("Error adding track to queue:", error);
@@ -263,18 +263,27 @@ const SearchResult = ({
         }
         {selectedArtist && artistTracks && artistAlbums && (
           <div>
-            {selectedArtist && <button onClick={artistBack} />}
-            {!artistSelectedAlbum ? <button onClick={artistAlbumBack} /> : null}
+            {selectedArtist && hideArtist === false && (
+              <button onClick={artistBack} />
+            )}
+            {artistSelectedAlbum && hideArtist === true && (
+              <button onClick={artistAlbumBack} />
+            )}
             <h2>{selectedArtist.name}</h2>
 
-            {selectedArtist && (
+            {selectedArtist && hideArtist === false && (
               <div>
                 <div className="scroll">
                   <h4>Albums</h4>
                   <ul>
                     {artistAlbums.map((album, index) => (
                       <div key={index}>
-                        <li onClick={() => setArtistSelectedAlbum(album)}>
+                        <li
+                          onClick={() => {
+                            setArtistSelectedAlbum(album);
+                            setHidArtist(true);
+                          }}
+                        >
                           {album.images.length ? (
                             <img
                               width={"15%"}
@@ -303,7 +312,7 @@ const SearchResult = ({
               />
             )}
 
-            {selectedArtist && (
+            {selectedArtist && hideArtist === false && (
               <div>
                 <div className="scroll">
                   <h4>Songs</h4>

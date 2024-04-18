@@ -16,7 +16,8 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
     position: 0,
   });
   const [songPlaying, setSongPlaying] = useState();
-  const [qIndex, setQIndex] = useState();
+  const [qIndex, setQIndex] = useState(1);
+  const [volume, setVolume] = useState(50);
 
   //console.log(player)
   //get the player info
@@ -113,45 +114,24 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
     }
   }, [player]);
 
-  // useEffect(() => {
-  //   const spotQ = async () => {
-  //     const res = await Axios.get(
-  //       `http://localhost:3001/spotify-player/playerQueue/${token}`
-  //     );
-  //     const queue = res.data.queue;
-
-  //     //console.log(queue.length)
-  //     //setQueueSize(queue.length)
-  //   }
-
-  //   spotQ();
-  // }, [])
-
-  // useEffect(() => {
-  //   const QueueReq = async () => {
-  //     try {
-
-  //       const res = await Axios.get(`http://localhost:3001/queue/userQueue`, {userID: userID});
-  //       //const queue = res.data.queue;
-  //       //const currently_playing = res.data.currently_playing
-
-  //       //const updatedQueue = queue.filter((song) => song.uri !== currently_playing?.uri);
-        
-  //       //setQueue(updatedQueue);
-
-    
-
-        
-
-  //       // console.log(res.data)
-  //     } catch (error) {
-  //       console.error("Error fetching queue:", error);
-  //     }
-  //   };
-  //   QueueReq();
-  // }, []);
-
-
+  // seek
+  const handleSeek = async (e) => {
+    if (player && trackInfo.duration) {
+      const container = e.currentTarget;
+      const containerRect = container.getBoundingClientRect();
+      const offsetX = e.clientX - containerRect.left;
+      const containerWidth = containerRect.width;
+      const percentageClicked = offsetX / containerWidth;
+      const seekPosition = Math.floor(percentageClicked * trackInfo.duration);
+      console.log(seekPosition)
+  
+      setTrackInfo({ ...trackInfo, position: seekPosition });
+      const response = await Axios.put(
+        `http://localhost:3001/spotify-player/seekPlayer/${seekPosition}/${token}/${deviceInfo.id}`
+      );
+      console.log("Response Status:", response.status);
+    }
+  };
 
   const handleToggleQueue = () => {
     setShowQueue(!showQueue);
@@ -181,30 +161,41 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
   //Next
   const handleNext = async () => {
     if (player) {
-       await Axios.post(
+      await Axios.post(
         `http://localhost:3001/spotify-player/skipPlayer/${token}/${deviceInfo.id}`
       );
 
-      const queue = await Axios.get(
-        `http://localhost:3001/queue/userQueue/${userID}`
-      );
+      try {
+        const Q = await Axios.get(
+          `http://localhost:3001/queue/userQueue/${userID}`
+        );
 
-      if(queue.status === 404){
-        setQIndex(0);
+        const deleteQ = await Axios.delete(
+          `http://localhost:3001/queue/userDeleteQueue/${userID}/${qIndex}`
+        );
+        console.log(deleteQ.data);
+        setQIndex(deleteQ.data);
+        setIsPlaying(true);
+      } catch (error) {
+        if (error.response.status === 404) {
+          console.log(error.response.data.index);
+          setIsPlaying(false);
+          const index = error.response.data.index;
+          setQIndex(index);
+          await Axios.put(
+            `http://localhost:3001/spotify-player/pausePlayer/${token}/${deviceInfo.id}`
+          );
+        } else {
+          console.log("Error:", error);
+        }
       }
-
-      
-
-      //const res = await Axios.delete(`http://localhost:3001/queue/userDeleteQueue/${userID}`)
-
-      setIsPlaying(true);
-      console.log(songPlaying);
     }
   };
+  //console.log(qIndex);
 
   //resume
   const handleResume = async (uri) => {
- if (player) {
+    if (player) {
       const response = await Axios.put(
         `http://localhost:3001/spotify-player/resumePlayer/${uri}/${token}/${deviceInfo.id}/${trackInfo.position}`
       );
@@ -217,7 +208,7 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
   useEffect(() => {
     const handlePlay = async () => {
       if (player && currentSong.uri) {
-        // console.log(`track: ${currentSong.uri}`)
+        console.log(`track: ${currentSong.uri}`);
         const response = await Axios.put(
           `http://localhost:3001/spotify-player/playTrack/${currentSong.uri}/${token}/${deviceInfo.id}`
         );
@@ -230,7 +221,6 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
     handlePlay();
     //console.log(currentSong);
   }, [currentSong]);
-
 
   //player testing
 
@@ -254,12 +244,32 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
+  //Volume
+  const VolumeChange = async (event) => {
+    const newVolume = parseInt(event.target.value);
+    setVolume(newVolume);
+
+    try {
+      // Update the player's volume using the Spotify Web API
+      const response = await Axios.put(
+        `http://localhost:3001/spotify-player/volume/${newVolume}/${deviceInfo.id}/${token}`
+      );
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error updating volume:", error.response.data);
+    }
+  };
+
   return (
     <div>
       <div>
         {/* Progress bar */}
-        <div className="progress-container">
-          <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+        <div className="progress-container" onClick={handleSeek}>
+        {/* Progress bar representation */}
+        <div
+          className="progress-bar"
+          style={{ backgroundColor: "green", width: `${progress}%` }}
+        ></div>
         </div>
 
         {/* Timestamps */}
@@ -299,11 +309,27 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
           </IconContext.Provider>
         </button>
         <button onClick={handleToggleQueue}>Show Queue</button>
+
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={volume}
+          onChange={VolumeChange}
+        />
+        <span>Volume: {volume}</span>
       </div>
 
       <div style={{ display: showQueue ? "block" : "none" }}>
-        <button onClick={handleToggleQueue}>Hide Queue</button>
-        {showQueue && (<Queue token={token} userID={userID} selectedSong={currentSong}/>)}
+        {showQueue && (
+          <Queue
+            token={token}
+            userID={userID}
+            selectedSong={currentSong}
+            setQIndex={qIndex}
+            songPlaying={songPlaying}
+          />
+        )}
       </div>
     </div>
   );

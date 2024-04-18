@@ -3,7 +3,7 @@ import "../styles.css";
 import { useState } from "react";
 import Axios from "axios";
 
-const UserSettings = ({ updateLoginStatus, username, email, userID}) => {
+const UserSettings = ({ updateLoginStatus, username, email, userID, loggedIn}) => {
   function closeSettings() {
     const signupPopup = document.getElementById("settings");
     signupPopup.style.display = "none";
@@ -48,6 +48,14 @@ const UserSettings = ({ updateLoginStatus, username, email, userID}) => {
         console.log(err);
       });
   };
+
+  const handleSpotLogout = async () => {
+    const res = await Axios.delete(`http://localhost:3001/spotify-api/logout/${userID}`, {userID: userID})
+    if(res.status === 200){
+      window.location = "https://accounts.spotify.com/logout"
+      loggedIn(false);
+    }
+  }
 
   return (
     <div className="signup-popup" id="settings">
@@ -139,7 +147,7 @@ const UserSettings = ({ updateLoginStatus, username, email, userID}) => {
             </h2>
             <div style={{ display: "flex", alignItems: "center" }}>
               <h3>Spotify</h3>
-              <button style={{ marginLeft: "10px" }} onClick={() => {window.location = "https://accounts.spotify.com/logout"}}>unlink</button>
+              <button style={{ marginLeft: "10px" }} onClick={handleSpotLogout}>unlink</button>
             </div>
           </>
         ) : (

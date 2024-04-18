@@ -182,26 +182,14 @@ module.exports = function (podoDB) {
     });
   });
 
-  router.delete("/logout", async (req, res) => {
+  router.delete("/logout/:userID", async (req, res) => {
     try {
-      const userID = req.body.userID;
-      const originURL = req.headers.referer;
+      const userID = req.params.userID;
 
       const deleteRes = await podoDB.delete("spotifyAPI", { userID: userID });
-      if (deleteRes.success) {
-        // If deletion was successful
-        if (originURL) {
-          res.redirect(originURL);
-        } else {
-          //redirect to the default URL
-          res.redirect("/");
-        }
-        console.log("Logged out successfully");
-      } else {
-        // deletion was not successful
-        console.error("Deletion failed");
-        res.status(500).send("Deletion failed");
-      }
+      
+        console.log("Logged out successfully", deleteRes.status);
+      
     } catch (error) {
       console.error("Error executing query:", error);
       res.status(500).send("Error executing query");
