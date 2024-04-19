@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./tdlindex.css";
 import Axios from "axios";
 import { useEffect } from "react";
+import { IoMdAdd } from "react-icons/io";
 
 const ToDoList = ({ loginStatusID, auth }) => {
   const [tasks, setTasks] = useState([]);
@@ -177,7 +178,7 @@ const ToDoList = ({ loginStatusID, auth }) => {
     <div className="to-do-list">
       <h1>To Do List</h1>
       <button href="/#" className="add button" onClick={openTaskPopup}>
-        add task
+      <IoMdAdd /> Add task
       </button>
       {auth ? (
         <div id="taskPopup" className="signup-popup">

@@ -14,6 +14,8 @@ header {
 }
 
 button {  background-color: lightslategray;
+  height: auto;
+  width: auto;
 }
 .dark-mode {
   background-color: #1f2c2e;
