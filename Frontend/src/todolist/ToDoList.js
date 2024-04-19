@@ -177,7 +177,7 @@ const ToDoList = ({ loginStatusID, auth }) => {
     <div className="to-do-list">
       <h1>To Do List</h1>
       <button href="/#" className="add button" onClick={openTaskPopup}>
-        add task
+      <IoAdd/> Add task
       </button>
       {auth ? (
         <div id="taskPopup" className="signup-popup">
