@@ -11,6 +11,7 @@ import Cookies from "js-cookie";
 import MusicPlayer from "../MusicOverlay/MusicPlayer";
 import Calendar from "../calender/test";
 import UserSettings from "./UserSettings";
+import { IoMdSunny, IoMdMoon } from "react-icons/io";
 
 const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
@@ -137,10 +138,8 @@ const Home = () => {
           </div>
           <div id="DarkModetext"></div>
           <div className="dropdown-menu" id="dropdownMenu">
-            <a href="/#">
-              Mode <button onClick={lightMode}>Light</button> /{" "}
-              <button onClick={darkMode}>Dark</button>
-            </a>
+              <a href="/#" onClick={lightMode}> <IoMdSunny /> Light</a> 
+              <a href="/#" onClick={darkMode}> <IoMdMoon /> Dark</a>
             <a href="/#" onClick={openSignUpPopup}>
               Sign Up
             </a>
