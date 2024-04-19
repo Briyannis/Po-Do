@@ -138,8 +138,8 @@ const Home = () => {
           </div>
           <div id="DarkModetext"></div>
           <div className="dropdown-menu" id="dropdownMenu">
-              <a href="/#" onClick={lightMode}> <IoMdSunny /> Light</a> 
-              <a href="/#" onClick={darkMode}> <IoMdMoon /> Dark</a>
+              <a href="/#" onClick={lightMode}> <IoMdSunny/>Light</a>
+              <a href="/#" onClick={darkMode}> <IoMdMoon/> Dark</a>
             <a href="/#" onClick={openSignUpPopup}>
               Sign Up
             </a>
