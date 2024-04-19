@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "loudness": "^0.4.2",
+    "react-loading": "^2.0.3",
+    "react-lottie": "^1.2.4",
+    "react-range": "^1.8.14"
+  }
+}
