@@ -180,6 +180,7 @@ const ToDoList = ({ loginStatusID, auth }) => {
       <h1>To Do List</h1>
       <button href="/#" className="add button" style={{width: "auto"}} onClick={openTaskPopup}>
       <IoAdd/> Add task
+      
       </button>
       {auth ? (
         <div id="taskPopup" className="signup-popup">
