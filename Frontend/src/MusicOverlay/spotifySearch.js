@@ -4,7 +4,10 @@ import { useState, useEffect } from "react";
 import Axios from "axios";
 import ArtistAlbumTracks from "./ArtistAlbumTracks";
 import { IconContext } from "react-icons";
-import { GrFormAdd } from "react-icons/gr";
+import { MdQueue } from "react-icons/md";
+import { IoCaretBack } from "react-icons/io5";
+import PreLoader2 from "./PreLoader2";
+import "./loading.css";
 
 const SearchResult = ({
   searchResults,
@@ -20,6 +23,7 @@ const SearchResult = ({
   const [artistSelectedAlbum, setArtistSelectedAlbum] = useState([]);
   const [once, setOnce] = useState(1);
   const [hideArtist, setHidArtist] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // depends? selectedAlbum, once, spotifyAccessToken, selectedArtist, artistSelectedAlbum, artistAlbums
 
@@ -146,7 +150,7 @@ const SearchResult = ({
 
   //console.log(searchResults.albums[0].uri)
 
-  //console.log(artistAlbums)
+  //console.log(searchResults);
 
   return (
     <div className="scroll">
@@ -154,81 +158,106 @@ const SearchResult = ({
         {
           //search results list
         }
-        {!selectedAlbum && !selectedArtist && (
-          <>
-            <div className="scroll">
-              <h4>Songs</h4>
-              {searchResults.tracks.map((track, index) => (
-                <div key={index} className="search-result">
-                  <li onClick={() => onTrackSelect(track)}>
-                    {track.album.images.length ? (
-                      <img
-                        width={"15%"}
-                        src={track.album.images[2].url}
-                        alt="Track Cover"
-                      />
-                    ) : (
-                      <div>No Image</div>
-                    )}
-                    <p>Track: {track.name}</p>
-                  </li>
-
-                  <div>
-                    <button
-                      onClick={() => {
-                        AddToQueue(track);
-                      }}
+        {!selectedAlbum &&
+          !selectedArtist &&
+          (searchResults.tracks.length !== 0 ||
+            searchResults.artists.length !== 0 ||
+            searchResults.albums.length !== 0) && (
+            <>
+              <div className="scroll">
+                <h4>Songs</h4>
+                {searchResults.tracks.map((track, index) => (
+                  <div key={index} className="search-result">
+                    <li
+                      className="track-item"
+                      onClick={() => onTrackSelect(track)}
                     >
-                      <IconContext.Provider
-                        value={{ size: "1em", color: "#27AE60" }}
+                      {track.album.images.length ? (
+                        <img
+                          className="album-cover"
+                          width={"15%"}
+                          src={track.album.images[2].url}
+                          alt="Track Cover"
+                        />
+                      ) : (
+                        <div>No Image</div>
+                      )}
+                      <p className="track-name">
+                        {track.name} - {track.artists[0].name}
+                      </p>
+                      <button
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          zIndex: 1,
+                        }}
+                        onClick={() => {
+                          AddToQueue(track);
+                        }}
                       >
-                        <GrFormAdd />
-                      </IconContext.Provider>
-                    </button>
+                        <IconContext.Provider
+                          value={{ size: "1em", color: "#27AE60" }}
+                        >
+                          <MdQueue />
+                        </IconContext.Provider>
+                      </button>
+                    </li>
+
+                    <div></div>
                   </div>
-                </div>
-              ))}
-            </div>
-            <div className="scroll">
-              <h4>Artists</h4>
-              {searchResults.artists.map((artist, index) => (
-                <div key={index} className="search-result">
-                  <li onClick={() => setSelectedArtist(artist)}>
-                    <p>Artist: {artist.name}</p>
-                    {artist.images.length ? (
-                      <img width={"15%"} src={artist.images[2].url} alt="" />
-                    ) : (
-                      <div>No Image</div>
-                    )}
-                  </li>
-                </div>
-              ))}
-            </div>
-            <div className="scroll">
-              <h4>Albums</h4>
-              {searchResults.albums.map((album, index) => (
-                <div key={index} className="search-result">
-                  <li onClick={() => setSelectedAlbum(album)}>
-                    {album.images.length ? (
-                      <img
-                        width={"15%"}
-                        src={album.images[2].url}
-                        alt="Album Cover"
-                      />
-                    ) : (
-                      <div>No Image</div>
-                    )}
-                    <p>Title: {album.name}</p>
-                    <p>
-                      Artists:{" "}
-                      {album.artists.map((artist) => artist.name).join(", ")}
-                    </p>
-                  </li>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
+                ))}
+              </div>
+              <div className="scroll">
+                <h4>Artists</h4>
+                {searchResults.artists.map((artist, index) => (
+                  <div key={index} className="search-result">
+                    <li
+                      className="track-item"
+                      onClick={() => setSelectedArtist(artist)}
+                    >
+                      {artist.images.length ? (
+                        <img
+                          className="album-cover"
+                          width={"15%"}
+                          src={artist.images[2].url}
+                          alt=""
+                        />
+                      ) : (
+                        <div>No Image</div>
+                      )}
+                      <p className="track-name">{artist.name}</p>
+                    </li>
+                  </div>
+                ))}
+              </div>
+              <div className="scroll">
+                <h4>Albums</h4>
+                {searchResults.albums.map((album, index) => (
+                  <div key={index} className="search-result">
+                    <li
+                      className="track-item"
+                      onClick={() => setSelectedAlbum(album)}
+                    >
+                      {album.images.length ? (
+                        <img
+                          className="album-cover"
+                          width={"15%"}
+                          src={album.images[2].url}
+                          alt="Album Cover"
+                        />
+                      ) : (
+                        <div>No Image</div>
+                      )}
+                      <p className="track-name">{album.name} - </p>
+                      <p className="track-name">
+                        {album.artists.map((artist) => artist.name).join(", ")}
+                      </p>
+                    </li>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
 
         {
           //shows selected albums
@@ -240,9 +269,13 @@ const SearchResult = ({
             <ul>
               {albumTracks.map((track, index) => (
                 <div key={index}>
-                  <li onClick={() => onTrackSelect(track)}>
+                  <li
+                    className="track-item"
+                    onClick={() => onTrackSelect(track)}
+                  >
                     {selectedAlbum.images.length ? (
                       <img
+                        className="album-cover"
                         width={"15%"}
                         src={selectedAlbum.images[2].url}
                         alt="Album Cover"
@@ -250,7 +283,9 @@ const SearchResult = ({
                     ) : (
                       <div>No Image</div>
                     )}
-                    {track.name}
+                    <p className="track-name">
+                      {track.name} - {track.artists[0].name}
+                    </p>
                   </li>
                 </div>
               ))}
@@ -264,10 +299,29 @@ const SearchResult = ({
         {selectedArtist && artistTracks && artistAlbums && (
           <div>
             {selectedArtist && hideArtist === false && (
-              <button onClick={artistBack} />
+              <button style={{
+                background: "transparent",
+                border: "none",
+                marginLeft: "-35px",
+              }} onClick={artistBack}>
+                <IconContext.Provider value={{ size: "1em", color: "#27AE60" }}>
+                  <IoCaretBack />
+                </IconContext.Provider>
+              </button>
             )}
             {artistSelectedAlbum && hideArtist === true && (
-              <button onClick={artistAlbumBack} />
+              <button
+                onClick={artistAlbumBack}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  marginLeft: "-35px",
+                }}
+              >
+                <IconContext.Provider value={{ size: "1em", color: "#27AE60" }}>
+                  <IoCaretBack />
+                </IconContext.Provider>
+              </button>
             )}
             <h2>{selectedArtist.name}</h2>
 
@@ -279,6 +333,7 @@ const SearchResult = ({
                     {artistAlbums.map((album, index) => (
                       <div key={index}>
                         <li
+                          className="track-item"
                           onClick={() => {
                             setArtistSelectedAlbum(album);
                             setHidArtist(true);
@@ -286,6 +341,7 @@ const SearchResult = ({
                         >
                           {album.images.length ? (
                             <img
+                              className="album-cover"
                               width={"15%"}
                               src={album.images[2].url}
                               alt="Album Cover"
@@ -293,7 +349,9 @@ const SearchResult = ({
                           ) : (
                             <div>No Image</div>
                           )}
-                          {album.name}
+                          <p className="track-name">
+                            {album.name} - {album.artists[0].name}
+                          </p>
                         </li>
                       </div>
                     ))}
@@ -306,6 +364,7 @@ const SearchResult = ({
             }
             {artistSelectedAlbum && (
               <ArtistAlbumTracks
+                userID={userID}
                 artistSelectedAlbum={artistSelectedAlbum}
                 spotifyAccessToken={spotifyAccessToken}
                 trackSelected={trackSelected}
@@ -319,7 +378,10 @@ const SearchResult = ({
                   <ul>
                     {artistTracks.map((track, index) => (
                       <div key={index}>
-                        <li onClick={() => onTrackSelect(track)}>
+                        <li
+                          className="track-item"
+                          onClick={() => onTrackSelect(track)}
+                        >
                           {track.album.images.length ? (
                             <img
                               width={"15%"}
@@ -329,15 +391,27 @@ const SearchResult = ({
                           ) : (
                             <div>No Image</div>
                           )}
-                          {track.name}
-                        </li>
-                        <button>
-                          <IconContext.Provider
-                            value={{ size: "1em", color: "#27AE60" }}
+                          <p className="track-name">
+                            {" "}
+                            {track.name} - {track.artists[0].name}{" "}
+                          </p>
+                          <button
+                            style={{
+                              background: "transparent",
+                              border: "none",
+                              zIndex: 1,
+                            }}
+                            onClick={() => {
+                              AddToQueue(track);
+                            }}
                           >
-                            <GrFormAdd />
-                          </IconContext.Provider>
-                        </button>
+                            <IconContext.Provider
+                              value={{ size: "1em", color: "#27AE60" }}
+                            >
+                              <MdQueue />
+                            </IconContext.Provider>
+                          </button>
+                        </li>
                       </div>
                     ))}
                   </ul>

@@ -1,6 +1,8 @@
 Frontend installs:
 -npm install
+-npm install react-lottie
 -npm axios
+-npm install react-loading
 
 
 Backend installs:

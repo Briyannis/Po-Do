@@ -16,7 +16,8 @@ const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [workMinutes, setWorkMinutes] = useState(45);
   const [breakMinutes, setBreakMinutes] = useState(15);
-  const [spotLog, setSpotLog] = useState(false)
+  const [spotLog, setSpotLog] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   //login states
   const [loginStatus, setLoginStatus] = useState("");
@@ -97,7 +98,7 @@ const Home = () => {
 
   const loggedIn = (loggedIn) => {
     setSpotLog(loggedIn);
-  }
+  };
 
   return (
     <div>
@@ -147,11 +148,15 @@ const Home = () => {
         </header>
       )}
 
-<div className="content">
-        <div className="calendar-container">
-          <Calendar />
+      <div className="content">
+        <div>
+          <div className="calendar-container">
+            <Calendar />
+          </div>
+          <div>
+          <ToDoList loginStatusID={loginStatus.id} auth={auth} />
+          </div>
         </div>
-        <ToDoList loginStatusID={loginStatus.id} auth={auth} />
         <div className="cont">
           <div className="container">
             <main>
@@ -170,20 +175,27 @@ const Home = () => {
             </main>
           </div>
           <div className="music-overlay">
+            {/* Render the MusicPlayer component in the background */}
             {auth ? (
               <MusicPlayer
                 auth={auth}
                 loginStatusID={loginStatus.id}
                 darkmode={darkmode}
                 spotLog={spotLog}
+                style={{ display: "none" }}
               />
             ) : (
-              <h2>Sign In</h2>
+              <div className="music-overlay">
+              <h1>Music Player</h1>
+              <buttton className="signupMenubutton" onClick={openSignUpPopup}>
+                Sign Up
+              </buttton>
+              </ div>
             )}
           </div>
         </div>
       </div>
-     
+
       <AuthForm setLoginStatus={setLoginStatus} setAuth={setAuth} />
       <UserSettings
         updateLoginStatus={updateLoginStatus}

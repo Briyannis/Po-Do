@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Axios from "axios";
+import "./MusicOverlay.css"
 
 const SpotifyLogin = ({ loginStatusID }) => {
   useEffect(() => {
@@ -54,8 +55,13 @@ const SpotifyLogin = ({ loginStatusID }) => {
   };
 
   return (
-    <div>
-      <button onClick={handleSpotifyLogin}>Login</button>
+    <div style={{marginTop: "30px", marginLeft: "40px"}}>
+      <button
+        className="LoginButton"
+        onClick={handleSpotifyLogin}
+      >
+        Login to Spotify
+      </button>
     </div>
   );
 };

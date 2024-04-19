@@ -186,6 +186,8 @@ module.exports = function (podoDB) {
     try {
       const userID = req.params.userID;
 
+      console.log(userID)
+
       const deleteRes = await podoDB.delete("spotifyAPI", { userID: userID });
       
         console.log("Logged out successfully", deleteRes.status);

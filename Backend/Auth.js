@@ -173,9 +173,11 @@ const verifyUser = (req, res, next) => {
     try {
       const username = req.query.username;
       const email = req.query.email;
-      const userId = req.body.userID;
+      const userId = req.query.userID;
       const oldPass = req.query.oldPass;
       const newPass = req.query.newPass;
+
+      console.log("update")
   
       let prepStatement = await podoDB.prepare(
         "SELECT * FROM users WHERE ID = ?"

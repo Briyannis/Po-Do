@@ -1,13 +1,27 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import Axios from "axios";
+import "./loading.css";
+import "./MusicOverlay.css";
 import "./Player.css";
 import { IconContext } from "react-icons";
 import { AiFillPlayCircle, AiFillPauseCircle } from "react-icons/ai";
 import { BiSkipNext, BiSkipPrevious } from "react-icons/bi";
 import Queue from "./Queue";
+import PreLoader1 from "./PreLoader1";
+import SideMenu from "./sideMenu";
+import { Range } from "react-range";
+import { PiQueueFill } from "react-icons/pi";
 
-const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
+const Player = ({
+  token,
+  currentSong,
+  player,
+  playerID,
+  userID,
+  loading,
+  spotID,
+}) => {
   const [showQueue, setShowQueue] = useState(false);
   const [deviceInfo, setDeviceInfo] = useState();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -18,6 +32,22 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
   const [songPlaying, setSongPlaying] = useState();
   const [qIndex, setQIndex] = useState(1);
   const [volume, setVolume] = useState(50);
+  const [stillLoading, setStillLoading] = useState(true);
+  const [songInfo, setSongInfo] = useState();
+
+  const [songName, setSongName] = useState();
+  const [albumImage, setAlbumImage] = useState();
+  const [songArtist, setSongArtist] = useState();
+
+  const [showSideMenu, setShowSideMenu] = useState(false);
+
+  const [selectedTrack, setSelectedTrack] = useState([]);
+  const [seekPos, setSeekPos] = useState();
+
+  // Toggle side menu visibility
+  const toggleSideMenu = () => {
+    setShowSideMenu(!showSideMenu);
+  };
 
   //console.log(player)
   //get the player info
@@ -46,12 +76,13 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
       }
     };
 
-    if (player !== null && !deviceInfo) {
-      setTimeout(() => {
-        avaDevice();
-      }, 1000);
+    if (player !== null && !deviceInfo && loading === false) {
+      // setTimeout(() => {
+      //   avaDevice();
+      // }, 1000);
+      avaDevice();
     }
-  }, [player, playerID]);
+  }, [player, playerID, loading]);
 
   //transfer player
   useEffect(() => {
@@ -72,12 +103,13 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
       }
     };
 
-    if (deviceInfo) {
-      setTimeout(() => {
-        transfer();
-      }, 1000);
+    if (deviceInfo && loading === false) {
+      // setTimeout(() => {
+      //   transfer();
+      // }, 1000);
+      transfer();
     }
-  }, [deviceInfo]);
+  }, [deviceInfo, loading]);
 
   //get track duration/ player state / queue
   useEffect(() => {
@@ -93,42 +125,55 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
         if (res.data && res2.data) {
           const { item, progress_ms } = res.data;
           //console.log(is_playing)
-          songInfo(res2.data.item);
+          setSongInfo(res2.data.item);
           setSongPlaying(item);
           setTrackInfo({
             duration: item.duration_ms || 0,
             position: progress_ms || 0,
           });
+          setStillLoading(false);
         }
       } catch (error) {
         console.error("Error getting player state:", error);
       }
     };
 
-    if (player) {
+    if (player && loading === false) {
       const playerStateInterval = setInterval(playerState, 1000);
 
       return () => {
         clearInterval(playerStateInterval);
       };
     }
-  }, [player]);
+  }, [player, loading]);
+
+  useEffect(() => {
+    const getPlayingInfo = () => {
+      if (songInfo) {
+        //console.log(songInfo)
+        const { album, name, artists } = songInfo;
+        setAlbumImage(album.images);
+        setSongName(name);
+        setSongArtist(artists[0].name);
+      }
+    };
+
+    getPlayingInfo();
+  }, [songInfo]);
 
   // seek
   const handleSeek = async (e) => {
     if (player && trackInfo.duration) {
-      const container = e.currentTarget;
-      const containerRect = container.getBoundingClientRect();
-      const offsetX = e.clientX - containerRect.left;
-      const containerWidth = containerRect.width;
-      const percentageClicked = offsetX / containerWidth;
-      const seekPosition = Math.floor(percentageClicked * trackInfo.duration);
-      console.log(seekPosition)
-  
+      const seekPosition = Math.floor((e / 100) * trackInfo.duration);
+      console.log(seekPosition);
+      setSeekPos(seekPosition);
+
       setTrackInfo({ ...trackInfo, position: seekPosition });
+
       const response = await Axios.put(
         `http://localhost:3001/spotify-player/seekPlayer/${seekPosition}/${token}/${deviceInfo.id}`
       );
+
       console.log("Response Status:", response.status);
     }
   };
@@ -178,8 +223,8 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
         setIsPlaying(true);
       } catch (error) {
         if (error.response.status === 404) {
-          console.log(error.response.data.index);
           setIsPlaying(false);
+          //console.log(error.response.data.index);
           const index = error.response.data.index;
           setQIndex(index);
           await Axios.put(
@@ -207,10 +252,10 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
   //plays selected track
   useEffect(() => {
     const handlePlay = async () => {
-      if (player && currentSong.uri) {
-        console.log(`track: ${currentSong.uri}`);
+      if (player && selectedTrack.uri) {
+        console.log(`track: ${selectedTrack.uri}`);
         const response = await Axios.put(
-          `http://localhost:3001/spotify-player/playTrack/${currentSong.uri}/${token}/${deviceInfo.id}`
+          `http://localhost:3001/spotify-player/playTrack/${selectedTrack.uri}/${token}/${deviceInfo.id}`
         );
         //QueueReq();
         setIsPlaying(true);
@@ -220,7 +265,7 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
     };
     handlePlay();
     //console.log(currentSong);
-  }, [currentSong]);
+  }, [selectedTrack]);
 
   //player testing
 
@@ -260,77 +305,174 @@ const Player = ({ token, currentSong, player, playerID, songInfo, userID }) => {
     }
   };
 
+  const onTrackSelect = async (selected_Track) => {
+    setSelectedTrack(selected_Track);
+    setShowSideMenu(false);
+    await Axios.delete(`http://localhost:3001/queue/DeleteAQueue/${userID}`);
+    setTimeout(() => {
+      setSelectedTrack([]);
+    }, 3000);
+  };
+
   return (
     <div>
-      <div>
-        {/* Progress bar */}
-        <div className="progress-container" onClick={handleSeek}>
-        {/* Progress bar representation */}
-        <div
-          className="progress-bar"
-          style={{ backgroundColor: "green", width: `${progress}%` }}
-        ></div>
+      {stillLoading ? (
+        <div className="loading-container">
+          <div className="loading">
+            <PreLoader1 />
+          </div>
         </div>
+      ) : (
+        <>
+          <div className="menu-toggle">
+            <button onClick={toggleSideMenu} className="menu-button">
+              <div className="bar"></div>
+              <div className="bar"></div>
+              <div className="bar"></div>
+            </button>
+          </div>
+          <div className="content-container">
+            {showSideMenu && (
+              <SideMenu
+                spotID={spotID}
+                spotifyAccessToken={token}
+                loginStatusID={userID}
+                trackSelect={onTrackSelect}
+              />
+            )}
+            <h2>Now Playing</h2>
+            {selectedTrack && (
+              <div>
+                {albumImage && (
+                  <img src={albumImage[1].url} alt="Album Cover" />
+                )}
+                <p>
+                  {songName} - {songArtist}
+                </p>
+              </div>
+            )}
+          </div>
+          <div>
+            {/* Progress bar */}
+            <div className="progress-container">
+              {/* Progress bar representation */}
+              <div
+                className="progress-bar"
+                style={{ backgroundColor: "#14c91c", width: `${progress}%` }}
+              ></div>
+              <Range
+                step={0.1}
+                min={0}
+                max={100}
+                values={[progress]}
+                onChange={(newValues) => handleSeek(newValues[0])}
+                renderTrack={({ props, children }) => (
+                  <div
+                    {...props}
+                    style={{
+                      ...props.style,
+                      height: "1px",
+                      width: "100%",
+                      opacity: 1,
+                      backgroundColor: "white",
+                    }}
+                  >
+                    {children}
+                  </div>
+                )}
+                renderThumb={({ props }) => (
+                  <div
+                    {...props}
+                    style={{
+                      ...props.style,
+                      width: "15px",
+                      height: "15px",
+                      borderRadius: "50%",
+                      backgroundColor: "#14c91c",
+                      cursor: "pointer",
+                      position: "relative",
+                      top: "-6px",
+                    }}
+                  />
+                )}
+              />
+            </div>
 
-        {/* Timestamps */}
-        <div className="timestamps">
-          <span>{formatTime(trackInfo.position)}</span>
-          <span>{formatTime(trackInfo.duration)}</span>
-        </div>
-      </div>
-      <div style={{ display: showQueue ? "none" : "block" }}></div>
-      <div>
-        <button className="playButton" onClick={() => handlePrevious()}>
-          <IconContext.Provider value={{ size: "1.5em", color: "#27AE60" }}>
-            <BiSkipPrevious />
-          </IconContext.Provider>
-        </button>
+            {/* Timestamps */}
+            <div className="timestamps">
+              <span>
+                {isNaN(trackInfo.position)
+                  ? formatTime(seekPos)
+                  : formatTime(trackInfo.position)}
+              </span>
+              <span>{formatTime(trackInfo.duration)}</span>
+            </div>
+          </div>
+          <div style={{ display: showQueue ? "none" : "block" }}></div>
+          <div className="player-controls">
+            <div className="player-controls-container">
+            <button className="playButton" onClick={() => handlePrevious()}>
+              <IconContext.Provider value={{ size: "1.5em", color: "#14c91c" }}>
+                <BiSkipPrevious />
+              </IconContext.Provider>
+            </button>
 
-        {!isPlaying ? (
-          <button
-            className="playButton"
-            onClick={() => handleResume(songPlaying.uri)}
-          >
-            <IconContext.Provider value={{ size: "1.5em", color: "#27AE60" }}>
-              <AiFillPlayCircle />
-            </IconContext.Provider>
-          </button>
-        ) : (
-          <button className="playButton" onClick={() => handlePause()}>
-            <IconContext.Provider value={{ size: "1.5em", color: "#27AE60" }}>
-              <AiFillPauseCircle />
-            </IconContext.Provider>
-          </button>
-        )}
+            {!isPlaying ? (
+              <button
+                className="playButton"
+                onClick={() => handleResume(songPlaying.uri)}
+              >
+                <IconContext.Provider
+                  value={{ size: "1.5em", color: "#14c91c" }}
+                >
+                  <AiFillPlayCircle />
+                </IconContext.Provider>
+              </button>
+            ) : (
+              <button className="playButton" onClick={() => handlePause()}>
+                <IconContext.Provider
+                  value={{ size: "1.5em", color: "#14c91c" }}
+                >
+                  <AiFillPauseCircle />
+                </IconContext.Provider>
+              </button>
+            )}
 
-        <button className="playButton" onClick={() => handleNext()}>
-          <IconContext.Provider value={{ size: "1.5em", color: "#27AE60" }}>
-            <BiSkipNext />
-          </IconContext.Provider>
-        </button>
-        <button onClick={handleToggleQueue}>Show Queue</button>
+            <button className="playButton" onClick={() => handleNext()}>
+              <IconContext.Provider value={{ size: "1.5em", color: "#14c91c" }}>
+                <BiSkipNext />
+              </IconContext.Provider>
+            </button>
+            </div>
+            <div className="volume-control-container">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={volume}
+                onChange={VolumeChange}
+              />
+              <button className="playButton" onClick={handleToggleQueue}>
+            <IconContext.Provider value={{ size: "1.5em", color: "#14c91c" }}>
+            <PiQueueFill />
+              </IconContext.Provider>
+            </button>
+            </div>
+          </div>
 
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={volume}
-          onChange={VolumeChange}
-        />
-        <span>Volume: {volume}</span>
-      </div>
-
-      <div style={{ display: showQueue ? "block" : "none" }}>
-        {showQueue && (
-          <Queue
-            token={token}
-            userID={userID}
-            selectedSong={currentSong}
-            setQIndex={qIndex}
-            songPlaying={songPlaying}
-          />
-        )}
-      </div>
+          <div style={{ display: showQueue ? "block" : "none" }}>
+            {showQueue && (
+              <Queue
+                token={token}
+                userID={userID}
+                selectedSong={selectedTrack}
+                setQIndex={qIndex}
+                songPlaying={songPlaying}
+              />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

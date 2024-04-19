@@ -5,12 +5,99 @@
     border-radius: 5px;
     margin-top: 10px;
   }
-  
+
   .progress-bar {
+    height: 10px; /* Set the height of the slider */
+    background-color: #ddd; /* Set the background color */
+    position: relative;
+    border-radius: 5px;
+  }
+
+  .volume-control {
+    display:inline-block;
+    margin: 0 10px; /* Adjust spacing as needed */
+    align-items: center;
+  }
+  .volume-control-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .player-controls-container {
+    display: flex;
+    justify-content: center;
+  }
+  
+  input[type='range']{ accent-color: #14c91c; background-color: #14c91c;}
+ 
+
+  .player-controls {
+    display: contents;
+    align-items: center;
+  }
+
+  .slider-thumb {
+    position: left; /* Position thumb absolutely */
+    top: 50%; /* Position thumb vertically centered */
+    transform: translate(-50%, -50%); /* Center thumb horizontally */
+    width: 20px; /* Set the width of the thumb */
+    height: 20px; /* Set the height of the thumb */
+    background-color: green; /* Set the color of the thumb */
+    border-radius: 50%; /* Make the thumb round */
+    cursor: pointer; /* Set cursor to pointer */
+  }
+  
+  
+  /* .progress-bar {
     height: 100%;
     background-color: #27ae60;
     border-radius: 5px;
+  } */
+
+  .slider-container {
+    --progress-bar-height: 5px;
   }
+
+  .slider-container {
+    position: relative;
+    width: 100%;
+  }
+  
+  .range {
+    -webkit-appearance: none;
+    background-color: #27ae60;
+    height: var(--progress-bar-height);
+    width: 100%;
+    cursor: pointer;
+    opacity: 1;
+    margin: 0 auto;
+
+  }
+  
+  .range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: var(--thumb-width);
+    height: var(--thumb-height);
+    background-color: #27ae60;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .thumb {
+    width: var(--thumb-width);
+    height: var(--thumb-height);
+    z-index: 3;
+    background-color: #27ae60;
+    position: absolute;
+    top: 50%;
+    border-radius: 50%;
+    transform: translate(0, -50%);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  
   
   .timestamps {
     display: flex;

@@ -1,10 +1,45 @@
 .to-do-list {
   font-family: Arial, sans-serif;
   text-align: right;
-  margin-top: 100px;
+  margin-top: -200px;
+  width: 500px;
+  margin-right: 30px;
+  margin-bottom: 100px;
+  float: right;
+  padding: 0px 40px 20px;
+
+}
+
+.to-do-list {
+  font-family: Arial, sans-serif;
+  text-align: right;
+  margin-top: -200px;
   width: 500px;
   float: right;
   padding-right: 10px;
+}
+
+li {
+  font-size: 2rem;
+  font-weight: bold;
+  padding: 7px;
+  background-color: hsl(0, 0%, 97%);
+  margin-bottom: 10px;
+  border: 3px solid hsla(0, 0%, 85%, 0.75);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  margin-right: 30px;
+}
+.text {
+  flex: 1;
+  color: black;
+}
+.delete,
+.move {
+  padding: 8px 12px;
+  font-size: 1.4rem;
+  margin-left: 10px;
 }
 
 h1 {
@@ -49,19 +84,23 @@ ol {
   padding: 0;
 }
 li {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
-  padding: 7px;
+  padding: 10px;
+  margin-top: 30px;
+  margin-left: -200px;
   background-color: hsl(0, 0%, 97%);
   margin-bottom: 10px;
   border: 3px solid hsla(0, 0%, 85%, 0.75);
-  border-radius: 5px;
-  display: flex;
+  border-radius: 20px;
+  display: inline-flex;
   align-items: center;
-  margin-right: 30px;
+
 }
 .text {
   flex: 1;
+  font-size:xx-large;
+  font: bolder;
   color: black;
 }
 .delete,

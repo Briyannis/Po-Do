@@ -3,12 +3,16 @@ import "../styles.css";
 import { useState } from "react";
 import Axios from "axios";
 
-const UserSettings = ({ updateLoginStatus, username, email, userID, loggedIn}) => {
+const UserSettings = ({
+  updateLoginStatus,
+  username,
+  email,
+  userID,
+}) => {
   function closeSettings() {
     const signupPopup = document.getElementById("settings");
     signupPopup.style.display = "none";
   }
-
 
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [showUpdateNameForm, setShowUpdateNameForm] = useState(false);
@@ -32,17 +36,22 @@ const UserSettings = ({ updateLoginStatus, username, email, userID, loggedIn}) =
     password: "",
   });
 
-  const [oldPass, setOldPass] = useState('');
+  const [oldPass, setOldPass] = useState("");
 
   const handleUpdates = () => {
     Axios.post(
       `http://localhost:3001/auth/updateUser?userID=${userID}&username=${formValues.username}&email=${formValues.email}&newPass=${formValues.password}&oldPass=${oldPass}`
-    , {userID: userID})
+    )
       .then((res) => {
         updateLoginStatus(res.data);
         setChangePass(false);
         setShowUpdateForm(false);
         setShowUpdateNameForm(false);
+        setFormValues({
+          username: "",
+          email: "",
+          password: "",
+        });
       })
       .catch((err) => {
         console.log(err);
@@ -50,12 +59,19 @@ const UserSettings = ({ updateLoginStatus, username, email, userID, loggedIn}) =
   };
 
   const handleSpotLogout = async () => {
-    const res = await Axios.delete(`http://localhost:3001/spotify-api/logout/${userID}`, {userID: userID})
-    if(res.status === 200){
-      window.location = "https://accounts.spotify.com/logout"
-      loggedIn(false);
-    }
-  }
+    console.log(userID);
+    await Axios.delete(
+      `http://localhost:3001/spotify-api/logout/${userID}`,
+      { userID: userID }
+    ).then ((res) => {
+      window.location.href = "https://accounts.spotify.com/logout";
+
+    }).catch((err) => {
+      console.log(err);
+    })
+   
+    
+  };
 
   return (
     <div className="signup-popup" id="settings">
@@ -78,14 +94,18 @@ const UserSettings = ({ updateLoginStatus, username, email, userID, loggedIn}) =
                   }
                   style={{ marginRight: "10px" }}
                 />
-                <button
-                  onClick={handleUpdates}
-                  style={{ marginLeft: "10px" }}
-                >
+                <button onClick={handleUpdates} style={{ marginLeft: "10px" }}>
                   Update
                 </button>
                 <button
-                  onClick={() => setShowUpdateForm(false)}
+                  onClick={() => {
+                    setShowUpdateForm(false);
+                    setFormValues({
+                      username: "",
+                      email: "",
+                      password: "",
+                    });
+                  }}
                   style={{ marginLeft: "10px" }}
                 >
                   Cancel
@@ -118,7 +138,14 @@ const UserSettings = ({ updateLoginStatus, username, email, userID, loggedIn}) =
                   Update
                 </button>
                 <button
-                  onClick={() => setShowUpdateNameForm(false)}
+                  onClick={() => {
+                    setShowUpdateNameForm(false);
+                    setFormValues({
+                      username: "",
+                      email: "",
+                      password: "",
+                    });
+                  }}
                   style={{ marginLeft: "10px" }}
                 >
                   Cancel
@@ -147,7 +174,9 @@ const UserSettings = ({ updateLoginStatus, username, email, userID, loggedIn}) =
             </h2>
             <div style={{ display: "flex", alignItems: "center" }}>
               <h3>Spotify</h3>
-              <button style={{ marginLeft: "10px" }} onClick={handleSpotLogout}>unlink</button>
+              <button style={{ marginLeft: "10px" }} onClick={handleSpotLogout}>
+                unlink
+              </button>
             </div>
           </>
         ) : (
@@ -164,13 +193,12 @@ const UserSettings = ({ updateLoginStatus, username, email, userID, loggedIn}) =
             <input
               type="text"
               placeholder="New Password"
-              onChange={(e) => setFormValues({ ...formValues, password: e.target.value })}
+              onChange={(e) =>
+                setFormValues({ ...formValues, password: e.target.value })
+              }
               style={{ marginRight: "10px" }}
             />
-            <button
-              onClick={handleUpdates}
-              style={{ marginLeft: "10px" }}
-            >
+            <button onClick={handleUpdates} style={{ marginLeft: "10px" }}>
               Update
             </button>
             <button

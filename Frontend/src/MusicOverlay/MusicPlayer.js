@@ -3,8 +3,7 @@ import "./MusicOverlay.css";
 import Playback from "./musicCover";
 import Axios from "axios";
 import SpotifyLogin from "./spotifyLogin";
-import SearchResult from "./spotifySearch";
-import Library from "./SpotifyLibrary";
+
 
 const MusicPlayer = ({ auth, loginStatusID, darkmode, spotLog }) => {
   //spotify api connection
@@ -15,17 +14,12 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode, spotLog }) => {
   // eslint-disable-next-line
   const [spotifyRefreshToken, setSpotifyRefreshToken] = useState();
   const [spotID, setSpotID] = useState();
-  //let stat = "";
+
 
   const [initialRender, setInitialRender] = useState(true);
   const [selectedTrack, setSelectedTrack] = useState([]);
-  const [loggedin, setLoggedin] = useState(false);
 
-  const [searchResults, setSearchResults] = useState({
-    albums: [],
-    artists: [],
-    tracks: [],
-  });
+ 
 
   useEffect(() => {
     const SpotTokens = async () => {
@@ -55,7 +49,6 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode, spotLog }) => {
             setSpotifyRefreshToken(tokens.refreshToken);
             setSpotID(spotID)
             setInitialRender(false);
-            setLoggedin(true);
           }
 
           // Then, refresh the access token if needed and save
@@ -97,104 +90,27 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode, spotLog }) => {
     }
   }, [auth]);
 
-  //search spotify api
-  const searchSpotify = async (event) => {
-    if (event) {
-      event.preventDefault();
-    }
-    //console.log(spotifyAccessToken);
-    try {
-      console.log(spotifyAccessToken);
-      const response = await Axios.get(
-        "http://localhost:3001/spotify-api/search",
-        {
-          headers: {
-            Authorization: `Bearer ${spotifyAccessToken}`,
-          },
-          params: {
-            q: searchKey,
-          },
-        }
-      );
-      setSearchResults({
-        albums: response.data.albums.items,
-        artists: response.data.artists.items,
-        tracks: response.data.tracks.items,
-      });
-      //console.log(searchResults.tracks);
-    } catch (error) {
-      console.error("Error:", error.response);
-    }
-  };
+  
 
-  const onTrackSelect = async (selected_Track) => {
-    setSelectedTrack(selected_Track);
-    setShowSideMenu(false);
-    setSearchResults(null);
-    await Axios.delete(
-      `http://localhost:3001/queue/DeleteAQueue/${loginStatusID}`
-    );
-    setTimeout(() => {
-      setSelectedTrack([]); 
-    }, 3000);
-  };
 
   // useEffect(() => {
   //   console.log(selectedTrack);
   // }, [selectedTrack]);
 
-  //music player UI
-  const [showSideMenu, setShowSideMenu] = useState(false);
-
-  // Toggle side menu visibility
-  const toggleSideMenu = () => {
-    setShowSideMenu(!showSideMenu);
-    setSearchResults(null);
-  };
 
   return (
     <div id="player" className="music-player">
       <h1>Music Player</h1>
       <div className="menu-toggle">
-        <button onClick={toggleSideMenu} className="menu-button">
-          <div className="bar"></div>
-          <div className="bar"></div>
-          <div className="bar"></div>
-        </button>
-        {!loggedin && (<SpotifyLogin loginStatusID={loginStatusID} />)}
+        {!spotifyAccessToken && (<SpotifyLogin loginStatusID={loginStatusID} />)}
       </div>
       <div className="content-container">
-        {showSideMenu && (
-          <div className="side-menu">
-            <div>
-              <div>
-                <form onSubmit={searchSpotify}>
-                  <input
-                    type="text"
-                    onChange={(e) => setSearchKey(e.target.value)}
-                  />
-                  <button type="submit">Search</button>
-                </form>
-              </div>
-              {searchResults && (
-                <SearchResult
-                  searchResults={searchResults}
-                  spotifyAccessToken={spotifyAccessToken}
-                  onTrackSelect={onTrackSelect}
-                  userID={loginStatusID}
-                />
-              )}
-
-              <div>
-                <Library token={spotifyAccessToken} spotID={spotID} onTrackSelect={onTrackSelect} userID={loginStatusID}/>
-              </div>
-            </div>
-          </div>
-        )}
         <div className="player-container">
           {/* Render the player component */}
-          {loggedin && (
-            <Playback currentSong={selectedTrack} token={spotifyAccessToken} userID={loginStatusID}/>
+          {spotifyAccessToken && (
+            <>
+            <Playback token={spotifyAccessToken} userID={loginStatusID} spotID={spotID}/>
+            </>
           )}
         </div>
       </div>

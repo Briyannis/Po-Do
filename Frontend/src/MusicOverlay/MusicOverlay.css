@@ -13,20 +13,28 @@
   top: 0;
   left: 0;
   width: 100%;
-  background-color: #fff; /* Adjust styling as needed */
-  z-index: 100; /* Ensure side menu appears above player */
+  background-color: #fff;
+  z-index: 100;
+}
+
+.queue {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  z-index: 100;
 }
 
 .content-container {
-  position: relative; /* Ensure proper stacking context */
+  position: relative;
 }
 
-
 .scroll {
-    scrollbar-width: thin;
-    width: 300px;
-    overflow-y: auto;
-    max-height: 400px;
+  scrollbar-width: thin;
+  width: 300px;
+  overflow-y: auto;
+  max-height: 400px;
 }
 .scroll-side {
   display: inline-block;
@@ -39,14 +47,14 @@
 
 .dark-mode .music-player {
   background-color: #1f2c2e;
-  color: #fff; /* Adjust text color for better visibility */
-  box-shadow: none; /* Optionally, remove shadow in dark mode */
+  color: #fff;
+  box-shadow: none;
 }
 
 .light-mode .music-player {
   background-color: #fff;
-  color: #fff; /* Adjust text color for better visibility */
-  box-shadow: none; /* Optionally, remove shadow in dark mode */
+  color: #fff;
+  box-shadow: none;
 }
 
 .search-bar {
@@ -58,18 +66,33 @@
   box-sizing: border-box;
 }
 
+.spotify-search-form {
+  display: flex;
+  align-items: center;
+}
+
+.spotify-search-input {
+  flex: 1;
+  height: 40px;
+  width: 45%;
+  padding: 8px;
+  border: none;
+  border-radius: 20px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+}
+
 .search-result button {
-  /* Reset button styles */
   border: none;
   background-color: transparent;
   cursor: pointer;
-  /* Add custom styles */
+
   padding: 5px 10px;
   border-radius: 5px;
   background-color: #007bff;
   color: #fff;
 }
-
 
 .hamburger-menu {
   position: absolute;
@@ -110,60 +133,33 @@
   padding: 10px;
 }
 
-/*Buttons*/
-
-.library-button,
-.music-list-button {
-  background-color: #007bff;
-  color: #fff;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-right: 10px;
-  transition: background-color 0.3s ease;
-}
-
-.library-button:hover,
-.music-list-button:hover {
-  background-color: #0056b3;
-}
-
-.music-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-
-.music-list li {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-  cursor: pointer;
-}
-
-.music-list li:last-child {
-  border-bottom: none;
-}
-
-.playback-controls {
+.track-item {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-top: 20px;
+  padding: 10px;
+  background-color: #c7c7c7;
+  cursor: pointer;
 }
 
-.playback-controls button {
-  background-color: #28a745;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
+.album-cover {
   width: 50px;
   height: 50px;
-  cursor: pointer;
-  margin: 0 10px;
-  transition: background-color 0.3s ease;
+  margin-right: 10px;
 }
 
-.playback-controls button:hover {
-  background-color: #218838;
+.track-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.LoginButton {
+  background: #312626;
+  padding: 20px 20px;
+  width: 100%;
+  border-radius: 1000px;
+  color: #12d112;
+  font: normal bold 24px/1 "Ubuntu", sans-serif;
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
 }

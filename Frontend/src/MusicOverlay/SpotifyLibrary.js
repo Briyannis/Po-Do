@@ -3,11 +3,16 @@ import "./MusicOverlay.css";
 import { useState, useEffect } from "react";
 import Axios from "axios";
 import { IconContext } from "react-icons";
-import { GrFormAdd } from "react-icons/gr";
+import "./Player.css";
+import { MdQueue } from "react-icons/md";
+import { IoCaretBack } from "react-icons/io5";
+import PreLoader2 from "./PreLoader2";
+import "./loading.css";
 
 const Library = ({ spotID, token, onTrackSelect, userID }) => {
   const [album, setAlbums] = useState();
   const [track, setTracks] = useState();
+  const [isLoading, setIsLoading] = useState(true);
 
   const [selectedAlbum, setSelectedAlbum] = useState();
   const [albumTracks, setAlbumTracks] = useState([]);
@@ -25,7 +30,10 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
       //console.log(tracks);
 
       setAlbums(albums.data);
+      //setAlbumsArt(album.data.artists)
       setTracks(tracks.data);
+      //setTracksArt(t.artists)
+      setIsLoading(false);
     };
     getLibrary();
 
@@ -82,86 +90,152 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
   //console.log(album)
 
   return (
-    <div>
-      {track && album && !selectedAlbum ? (
-        <>
-          <div className="scroll">
-            <h4>Albums</h4>
-            {album.map((albumItem, index) => (
-              <div key={index} className="search-result">
-                <li onClick={() => setSelectedAlbum(albumItem)}>
-                  {albumItem.images.length ? (
-                    <img
-                      width={"15%"}
-                      src={albumItem.images[0].url}
-                      alt="Album Cover"
-                    />
-                  ) : (
-                    <div>No Image</div>
-                  )}
-                  <p>Album: {albumItem.name}</p>
-                </li>
-              </div>
-            ))}
+    <div style={{ marginTop: "50px" }}>
+      {isLoading ? (
+        <div className="loading-container">
+          <div className="loading">
+            <PreLoader2 />
           </div>
-          <div className="scroll">
-            <h4>Songs</h4>
-            {track.map((trackItem, index) => (
-              <div key={index} className="search-result">
-                <li onClick={() => onTrackSelect(trackItem)}>
-                  {trackItem.album.images.length ? (
-                    <img
-                      width={"15%"}
-                      src={trackItem.album.images[0].url}
-                      alt="Track Cover"
-                    />
-                  ) : (
-                    <div>No Image</div>
-                  )}
-                  <p>Track: {trackItem.name}</p>
+        </div>
+      ) : (
+        <>
+          {track && album && !selectedAlbum ? (
+            <>
+              <div className="scroll">
+                <h4>Albums</h4>
+                {album.map((albumItem, index) => (
+                  <div key={index} className="search-result">
+                    <li
+                      className="track-item"
+                      onClick={() => setSelectedAlbum(albumItem)}
+                    >
+                      {albumItem.images.length ? (
+                        <img
+                          className="album-cover"
+                          width={"15%"}
+                          src={albumItem.images[0].url}
+                          alt="Album Cover"
+                        />
+                      ) : (
+                        <div>No Image</div>
+                      )}
+                      <p className="track-name">
+                        {albumItem.name} - {albumItem.artists[0].name}
+                      </p>
+                    </li>
+                  </div>
+                ))}
+              </div>
+              <div className="scroll">
+                <h4>Songs</h4>
+                {track.map((trackItem, index) => (
+                  <div key={index} className="search-result">
+                    <li
+                      className="track-item"
+                      style={{ zIndex: 0 }}
+                      onClick={() => onTrackSelect(trackItem)}
+                    >
+                      {trackItem.album.images.length ? (
+                        <img
+                          className="album-cover"
+                          width={"15%"}
+                          src={trackItem.album.images[0].url}
+                          alt="Track Cover"
+                        />
+                      ) : (
+                        <div>No Image</div>
+                      )}
+                      <p className="track-name">
+                        {trackItem.name} - {trackItem.artists[0].name}
+                      </p>
+                      <button
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          zIndex: 1,
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          AddToQueue(trackItem);
+                        }}
+                      >
+                        <IconContext.Provider
+                          value={{ size: "1em", color: "#27AE60" }}
+                        >
+                          <MdQueue />
+                        </IconContext.Provider>
+                      </button>
+                    </li>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              {selectedAlbum && (
+                <div>
                   <button
-                    onClick={() => {
-                       AddToQueue(trackItem);
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      marginLeft: "-35px",
                     }}
+                    onClick={() => setSelectedAlbum(null)}
                   >
                     <IconContext.Provider
                       value={{ size: "1em", color: "#27AE60" }}
                     >
-                      <GrFormAdd />
+                      <IoCaretBack />
                     </IconContext.Provider>
                   </button>
-                </li>
-              </div>
-            ))}
-          </div>
+                  <h4>{selectedAlbum.name}</h4>
+                  <ul>
+                    {albumTracks.map((track, index) => (
+                      <div key={index}>
+                        <li
+                          className="track-item"
+                          onClick={() => onTrackSelect(track)}
+                        >
+                          {selectedAlbum.images.length ? (
+                            <img
+                              className="album-cover"
+                              width={"15%"}
+                              src={selectedAlbum.images[2].url}
+                              alt="Album Cover"
+                            />
+                          ) : (
+                            <div>No Image</div>
+                          )}
+                          <p className="track-name">
+                            {selectedAlbum.name} -{" "}
+                            {selectedAlbum.artists[0].name}
+                          </p>
+                          <button
+                            style={{
+                              background: "transparent",
+                              border: "none",
+                              zIndex: 1,
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              AddToQueue(selectedAlbum);
+                            }}
+                          >
+                            <IconContext.Provider
+                              value={{ size: "1em", color: "#27AE60" }}
+                            >
+                              <MdQueue />
+                            </IconContext.Provider>
+                          </button>
+                        </li>
+                      </div>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          )}
         </>
-      ) : (
-        <p>Loading...</p>
-      )}
-
-      {selectedAlbum && (
-        <div>
-          <button onClick={() => setSelectedAlbum(null)} />
-          <h4>{selectedAlbum.name}</h4>
-          <ul>
-            {albumTracks.map((track, index) => (
-              <div key={index}>
-                <li onClick={() => onTrackSelect(track)}>
-                  {selectedAlbum.images.length ? (
-                    <img
-                      width={"15%"}
-                      src={selectedAlbum.images[2].url}
-                      alt="Album Cover"
-                    />
-                  ) : (
-                    <div>No Image</div>
-                  )}
-                  {track.name}
-                </li>
-              </div>
-            ))}
-          </ul>
-        </div>
       )}
     </div>
   );

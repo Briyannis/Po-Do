@@ -74,7 +74,7 @@ router.put("/transferPlayer/:token/:deviceID", async (req, res) => {
     res.json(response.data);
     //console.log(deviceID)
   } catch (error) {
-    console.error("Error playing song:", error);
+    console.error("Error playing song:", error.response.error);
     res.status(500).send(`Error playing song: ${error}`);
   }
 });
@@ -350,7 +350,7 @@ router.put("/volume/:volume/:deviceID/:token", async (req, res) => {
     // Update the player's volume using the Spotify Web API
     await loudness.setVolume(volume);
     const response = await Axios.put(
-      `https://api.spotify.com/v1/me/player/volume?volume_percent=${volume}&device_id=${deviceID}`,
+      `https://api.spotify.com/v1/me/player/volume?volume_percent=${volume}`,
       null,
       {
         headers: {

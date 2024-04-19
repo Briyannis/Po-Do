@@ -239,4 +239,29 @@ content {
 
 .music-overlay {
   float: right;
+  padding: 20px 20px;
+}
+
+.signupMenubutton {
+  background: #0b1618;
+  padding: 20px 20px;
+  width: 100%;
+  padding-top: 10px;
+  margin-right: 30px;
+  border-radius: 1000px;
+  color: #4169e1;
+  font: normal bold 24px/1 "Ubuntu", sans-serif;
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+}
+
+.signupMenubutton:hover {
+  background: #122326;
+}
+
+.todoList{
+  border-radius: 20px;
+  margin-top: -320px;
+  
 }
