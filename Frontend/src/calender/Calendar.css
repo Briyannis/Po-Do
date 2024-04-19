@@ -62,3 +62,7 @@
 .dark-mode .calendar {
   color: black;
 }
+
+.event-description {
+  padding: 10px;
+}
