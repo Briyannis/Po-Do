@@ -12,7 +12,6 @@ import MusicPlayer from "../MusicOverlay/MusicPlayer";
 import Calendar from "../calender/test";
 import UserSettings from "./UserSettings";
 import { IoMdSunny, IoMdMoon } from "react-icons/io";
-import { IoAdd } from "react-icons/io5";
 
 const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
