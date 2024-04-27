@@ -2,11 +2,22 @@
   height: 40px;
   border: 2px solid var(--red);
   border-radius: 20px;
+  cursor: pointer;
+  width: 90%;
+}
+
+.slider.red {
+  border: 2px solid var(--red);
+}
+
+.slider.red .thumb {
+  width: 40px;
+  height: 40px;
+  background-color: var(--red);
 }
 
 .thumb {
-  background-color: var(--red);
-  cursor: pointer;
+
   width: 40px;
   height: 40px;
   border-radius: 20px;
@@ -17,4 +28,6 @@
 }
 .slider.green .thumb {
   background-color: var(--green);
+  height: 40px;
+  width: 40px;
 }

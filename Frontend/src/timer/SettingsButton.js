@@ -1,11 +1,11 @@
 function SettingsButton(props) {
   return (
-    <button {...props} className={"with-text"}>
+    <button style={{background: "none"}} {...props} className={"with-text"}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-5 w-5"
         viewBox="0 0 20 20"
-        fill="currentColor"
+        fill="white"
       >
         <path
           fillRule="evenodd"
@@ -13,7 +13,7 @@ function SettingsButton(props) {
           clipRule="evenodd"
         />
       </svg>
-      Settings
+      <p style={{color: "white", display: "inline"}} >Settings</p>
     </button>
   );
 }

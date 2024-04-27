@@ -107,8 +107,8 @@ const SearchResult = ({
 
   //back to search results from artist
   const artistBack = () => {
-    setArtistAlbums(null);
-    setArtistTracks(null);
+    //setArtistAlbums(null);
+    //setArtistTracks(null);
     setSelectedArtist(null);
   };
 
@@ -191,7 +191,8 @@ const SearchResult = ({
                           border: "none",
                           zIndex: 1,
                         }}
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           AddToQueue(track);
                         }}
                       >
@@ -264,7 +265,17 @@ const SearchResult = ({
         }
         {selectedAlbum && (
           <div>
-            <button onClick={() => setSelectedAlbum(null)} />
+            <button 
+            style={{
+              background: "transparent",
+              border: "none",
+              marginLeft: "-35px",
+            }}
+            onClick={() => setSelectedAlbum(null)}>
+            <IconContext.Provider value={{ size: "1em", color: "#27AE60" }}>
+                  <IoCaretBack />
+                </IconContext.Provider>
+               </button>
             <h4>{selectedAlbum.name}</h4>
             <ul>
               {albumTracks.map((track, index) => (

@@ -112,3 +112,23 @@
     align-items: center;
     justify-content: center;
   }
+
+  .Cover {
+    padding-top: 10px;
+  }
+
+  .image {
+    border: solid green;
+    border-radius: 10px;
+    margin-left: 40px;
+
+  }
+
+  .title {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: x-large;
+    font-family: "Comic Sans MS", cursive;
+  }

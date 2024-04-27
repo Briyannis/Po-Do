@@ -1,12 +1,12 @@
 
 function PauseButton(props) {
   return (
-    <button {...props}>
+    <button style={{background: "none"}} {...props}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-5 w-5"
         viewBox="0 0 20 20"
-        fill="currentColor"
+        fill="lightslategrey"
       >
         <path
           fillRule="evenodd"

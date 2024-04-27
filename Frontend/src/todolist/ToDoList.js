@@ -2,14 +2,17 @@ import React, { useState } from "react";
 import "./tdlindex.css";
 import Axios from "axios";
 import { useEffect } from "react";
-import { IoAdd } from "react-icons/io5";
+import { TiDelete } from "react-icons/ti";
+import { IconContext } from "react-icons";
+import { FaArrowUp } from "react-icons/fa6";
+import { FaArrowDownLong } from "react-icons/fa6";
+import { IoIosAddCircle } from "react-icons/io";
 
-
-
-const ToDoList = ({ loginStatusID, auth }) => {
+const ToDoList = ({ loginStatusID, auth, event }) => {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
   const [newTaskDate, setNewTaskDate] = useState("");
+  const [newTime, setNewTime] = useState("");
   const [descrip, setDescrip] = useState("");
   const TIME_LIMIT = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   const CHECK_INTERVAL = 60 * 60 * 1000; // 1 hour in milliseconds
@@ -22,14 +25,26 @@ const ToDoList = ({ loginStatusID, auth }) => {
     setNewTaskDate(event.target.value);
   }
 
+  function handleTimeInputChange(event) {
+    setNewTime(event.target.value);
+  }
+
   function handleDescInputChange(event) {
     setDescrip(event.target.value);
   }
 
   function addTask() {
-    if (newTask.trim() !== "" && descrip.trim() !== "" && newTaskDate.trim() !== "") {
+    if (
+      newTask.trim() !== "" &&
+      descrip.trim() !== "" &&
+      newTaskDate.trim() !== ""
+    ) {
       const task = { task: newTask, descrip: descrip, date: newTaskDate };
-      setTasks((t) => [...t, task]);
+      if (task === null) {
+        setTasks(task);
+      } else {
+        setTasks((t) => [...t, task]);
+      }
       setNewTask("");
       setNewTaskDate("");
       setDescrip("");
@@ -50,7 +65,9 @@ const ToDoList = ({ loginStatusID, auth }) => {
   //gets users task
   useEffect(() => {
     if (auth && loginStatusID) {
-      Axios.get(`http://localhost:3001/tasks/podoDB/getTask?userID=${loginStatusID}`)
+      Axios.get(
+        `http://localhost:3001/tasks/podoDB/getTask?userID=${loginStatusID}`
+      )
         .then((response) => {
           setTasks(response.data);
         })
@@ -62,8 +79,17 @@ const ToDoList = ({ loginStatusID, auth }) => {
 
   //add guest task and save tasks
   function guestAddTask() {
-    if (newTask.trim() !== "" && descrip.trim() !== "" && newTaskDate.trim() !== "") {
-      const task = { task: newTask, descrip: descrip, date: newTaskDate, timestamp: Date.now()};
+    if (
+      newTask.trim() !== "" &&
+      descrip.trim() !== "" &&
+      newTaskDate.trim() !== ""
+    ) {
+      const task = {
+        task: newTask,
+        descrip: descrip,
+        date: newTaskDate,
+        timestamp: newTime,
+      };
 
       // Retrieve existing tasks from local storage
       const tasks = JSON.parse(localStorage.getItem("guestTasks")) || [];
@@ -71,44 +97,74 @@ const ToDoList = ({ loginStatusID, auth }) => {
       // Add the new task to the existing list of tasks
       const updatedTasks = [...tasks, task];
 
+      //sort task by date
+      updatedTasks.sort((x, y) => new Date(x.date) - new Date(y.date));
+
       // Store the updated list of tasks back into local storage
       localStorage.setItem("guestTasks", JSON.stringify(updatedTasks));
 
       // Update state to reflect the new list of tasks
-      setTasks(updatedTasks);
+      const today = new Date();
+      const formattedToday = today.toISOString().split("T")[0]; // Get today's date in yyyy-mm-dd format
+
+      // Filter tasks for today's date
+      const tasksForToday = updatedTasks.filter(
+        (task) => task.date === formattedToday
+      );
+
+      tasksForToday.sort((a, b) => {
+        const timeA = new Date(`2000-01-01T${a.timestamp}`);
+        const timeB = new Date(`2000-01-01T${b.timestamp}`);
+
+        // Compare the Date objects
+        return timeA - timeB;
+      });
+
+      setTasks(tasksForToday);
 
       console.log(updatedTasks);
       // Clear input fields
       setNewTask("");
       setNewTaskDate("");
+      setNewTime("");
       setDescrip("");
+      event(true);
     }
   }
 
   //localStorage.removeItem("guestTasks");
 
   useEffect(() => {
-    if(auth){
+    if (auth) {
       localStorage.removeItem("guestTasks");
       setTasks(null);
-    }
-    // Load guest tasks from local storage
-    const guestTasks = JSON.parse(localStorage.getItem("guestTasks")) || [];
+    } else if (auth === true) {
+      // Load guest tasks from local storage
+      const guestTasks = JSON.parse(localStorage.getItem("guestTasks")) || [];
 
-    // Set the guest tasks as the initial state for tasks
-    setTasks(guestTasks);
+      // Set the guest tasks as the initial state for tasks
+      const today = new Date();
+      const formattedToday = today.toISOString().split("T")[0]; // Get today's date in yyyy-mm-dd format
 
-    // Start interval to check and update guest tasks periodically
-    const interval = setInterval(() => {
-      const currentTime = Date.now();
-      const updatedTasks = guestTasks.filter(
-        (task) => currentTime - task.timestamp < TIME_LIMIT
+      // Filter tasks for today's date
+      const tasksForToday = guestTasks.filter(
+        (task) => task.date === formattedToday
       );
-      setTasks(updatedTasks);
-      localStorage.setItem("guestTasks", JSON.stringify(updatedTasks));
-    }, CHECK_INTERVAL);
 
-    return () => clearInterval(interval);
+      setTasks(tasksForToday);
+
+      // Start interval to check and update guest tasks periodically
+      const interval = setInterval(() => {
+        const currentTime = Date.now();
+        const updatedTasks = guestTasks.filter(
+          (task) => currentTime - task.timestamp < TIME_LIMIT
+        );
+        setTasks(updatedTasks);
+        localStorage.setItem("guestTasks", JSON.stringify(updatedTasks));
+      }, CHECK_INTERVAL);
+
+      return () => clearInterval(interval);
+    }
   }, [CHECK_INTERVAL, TIME_LIMIT, auth]);
 
   // Retrieve the task from the user task table to delete
@@ -118,9 +174,11 @@ const ToDoList = ({ loginStatusID, auth }) => {
     const task = tasks[index];
     const taskID = task.taskID;
 
-    Axios.delete("http://localhost:3001/tasks/podoDB/deleteTask", {data: {
-      taskID: taskID
-  }})
+    Axios.delete("http://localhost:3001/tasks/podoDB/deleteTask", {
+      data: {
+        taskID: taskID,
+      },
+    })
       .then((response) => {
         console.log(response.data);
       })
@@ -131,13 +189,33 @@ const ToDoList = ({ loginStatusID, auth }) => {
 
   // Retrieve the task from the geust task local storage to delete
   function guestDeleteTask(index) {
-    const guestTasks = JSON.parse(localStorage.getItem("guestTasks")) || [];
+    let guestTasks = JSON.parse(localStorage.getItem("guestTasks")) || [];
 
-    const updatedTasks = guestTasks.filter((_, i) => i !== index);
+    const today = new Date();
+    const formattedToday = today.toISOString().split("T")[0]; // Get today's date in yyyy-mm-dd format
 
-    localStorage.setItem("guestTasks", JSON.stringify(updatedTasks));
+    // Filter tasks for today's date
+    const tasksForToday = guestTasks.filter(
+      (task) => task.date === formattedToday
+    );
+
+    tasksForToday.sort((a, b) => {
+      const timeA = new Date(`2000-01-01T${a.timestamp}`);
+      const timeB = new Date(`2000-01-01T${b.timestamp}`);
+
+      // Compare the Date objects
+      return timeA - timeB;
+    });
+
+    const updatedTasks = tasksForToday.filter((_, i) => i !== index);
+
+    guestTasks = guestTasks.filter((task) => task.date !== formattedToday);
+    guestTasks = [...guestTasks, ...updatedTasks];
+
+    localStorage.setItem("guestTasks", JSON.stringify(guestTasks));
 
     setTasks(updatedTasks);
+    event(true);
   }
 
   function moveTaskUp(index) {
@@ -148,6 +226,16 @@ const ToDoList = ({ loginStatusID, auth }) => {
         updatedTasks[index],
       ];
       setTasks(updatedTasks); // Update state with the updatedTasks array
+
+      if (!auth) {
+        const guestTasks = JSON.parse(localStorage.getItem("guestTasks")) || [];
+        [guestTasks[index - 1], guestTasks[index]] = [
+          guestTasks[index],
+          guestTasks[index - 1],
+        ];
+        localStorage.setItem("guestTasks", JSON.stringify(guestTasks));
+        event(true);
+      }
     }
   }
 
@@ -159,6 +247,16 @@ const ToDoList = ({ loginStatusID, auth }) => {
         updatedTasks[index],
       ];
       setTasks(updatedTasks);
+
+      if (!auth) {
+        const guestTasks = JSON.parse(localStorage.getItem("guestTasks")) || [];
+        [guestTasks[index], guestTasks[index + 1]] = [
+          guestTasks[index + 1],
+          guestTasks[index],
+        ];
+        localStorage.setItem("guestTasks", JSON.stringify(guestTasks));
+        event(true);
+      }
     }
   }
 
@@ -179,9 +277,24 @@ const ToDoList = ({ loginStatusID, auth }) => {
   return (
     <div className="to-do-list">
       <h1>To Do List</h1>
-      <button href="/#" className="add button" style={{width: "auto"}} onClick={openTaskPopup}>
-      <IoAdd/> Add task
-      
+      <button
+        href="/#"
+        className="button"
+        style={{
+          background: "none",
+          display: "inline-block",
+          width: "fit-content",
+          padding: "1px",
+          marginTop: "10px",
+          marginLeft: "400px"
+        }}
+        onClick={openTaskPopup}
+      >
+        <IconContext.Provider
+          value={{ size: "1em", color: "#4169e1", className: "icon" }}
+        >
+          <IoIosAddCircle />
+        </IconContext.Provider>
       </button>
       {auth ? (
         <div id="taskPopup" className="signup-popup">
@@ -262,6 +375,14 @@ const ToDoList = ({ loginStatusID, auth }) => {
                 />
               </div>
               <div>
+                <input
+                  type="time"
+                  className="time-input"
+                  value={newTime}
+                  onChange={handleTimeInputChange}
+                />
+              </div>
+              <div>
                 <button
                   className="add button"
                   onClick={(event) => {
@@ -283,29 +404,81 @@ const ToDoList = ({ loginStatusID, auth }) => {
           </div>
         </div>
       )}
-      <ol>
-        {tasks.map((task, index) => (
-          <li key={index}>
-            <span className="text">
-              <strong>Task:</strong> {task.task}
-            </span>
-            {auth ? (
-              <button className="delete" onClick={() => deleteTask(index)}>
-                Delete
+      <ol className="scroll">
+        <div>{tasks &&
+          tasks.map((task, index) => (
+            <li key={index}>
+              <span className="text">
+                <strong style={{display: "flex"}}>Task:</strong> {task.task}
+              </span>
+              {auth ? (
+                <button
+                  className="button"
+                  style={{
+                    background: "none",
+                    display: "inline-block",
+                    width: "fit-content",
+                    padding: "1px",
+                  }}
+                  onClick={() => deleteTask(index)}
+                >
+                  <IconContext.Provider
+                    value={{ size: "1em", color: "red", className: "deleteB" }}
+                  >
+                    <TiDelete />
+                  </IconContext.Provider>
+                </button>
+              ) : (
+                <button
+                  className="button"
+                  style={{
+                    background: "none",
+                    display: "inline-block",
+                    width: "fit-content",
+                    padding: "1px",
+                  }}
+                  onClick={() => guestDeleteTask(index)}
+                >
+                  <IconContext.Provider
+                    value={{ size: "1em", color: "red", className: "deleteB" }}
+                  >
+                    <TiDelete />
+                  </IconContext.Provider>
+                </button>
+              )}
+              <button
+                className="button"
+                style={{
+                  background: "none",
+                  display: "inline-block",
+                  width: "fit-content",
+                  padding: "1px",
+                }}
+                onClick={() => moveTaskUp(index)}
+              >
+                <IconContext.Provider
+                  value={{ size: "1em", color: "#4169e1", className: "icon" }}
+                >
+                  <FaArrowUp />
+                </IconContext.Provider>
               </button>
-            ) : (
-              <button className="delete" onClick={() => guestDeleteTask(index)}>
-                Delete
+              <button
+                className="button"
+                style={{
+                  background: "none",
+                  display: "inline-block",
+                  width: "fit-content",
+                  padding: "1px",
+                }}
+                onClick={() => moveTaskDown(index)}
+              >
+                <IconContext.Provider value={{ size: "1em", color: "#4169e1" }}>
+                  <FaArrowDownLong />
+                </IconContext.Provider>
               </button>
-            )}
-            <button className="move button" onClick={() => moveTaskUp(index)}>
-              Up
-            </button>
-            <button className="move button" onClick={() => moveTaskDown(index)}>
-              Down
-            </button>
-          </li>
-        ))}
+            </li>
+          ))}
+          </div>
       </ol>
     </div>
   );

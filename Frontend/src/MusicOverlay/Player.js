@@ -106,7 +106,7 @@ const Player = ({
     if (deviceInfo && loading === false) {
       // setTimeout(() => {
       //   transfer();
-      // }, 1000);
+      // }, 1000;
       transfer();
     }
   }, [deviceInfo, loading]);
@@ -131,8 +131,10 @@ const Player = ({
             duration: item.duration_ms || 0,
             position: progress_ms || 0,
           });
-          setStillLoading(false);
+        } else {
+          playerState();
         }
+        setStillLoading(loading);
       } catch (error) {
         console.error("Error getting player state:", error);
       }
@@ -165,6 +167,7 @@ const Player = ({
   const handleSeek = async (e) => {
     if (player && trackInfo.duration) {
       const seekPosition = Math.floor((e / 100) * trackInfo.duration);
+      setTrackInfo({ ...trackInfo, position: seekPosition });
       console.log(seekPosition);
       setSeekPos(seekPosition);
 
@@ -173,10 +176,22 @@ const Player = ({
       const response = await Axios.put(
         `http://localhost:3001/spotify-player/seekPlayer/${seekPosition}/${token}/${deviceInfo.id}`
       );
+      setTrackInfo({ ...trackInfo, position: seekPosition });
 
       console.log("Response Status:", response.status);
     }
   };
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return function (...args) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func.apply(this, args);
+      }, delay);
+    };
+  };
+
+  const debouncedHandleSeek = debounce(handleSeek, 200);
 
   const handleToggleQueue = () => {
     setShowQueue(!showQueue);
@@ -190,6 +205,23 @@ const Player = ({
       setIsPlaying(false);
       console.log(response.status);
     }
+  };
+
+  const [clickCount, setClickCount] = useState(0);
+
+  const handleClick = async () => {
+    if (clickCount % 2 === 0) {
+      // First click action
+      console.log("First click action");
+      const response = await Axios.put(
+        `http://localhost:3001/spotify-player/seekPlayer/${0}/${token}/${deviceInfo.id}`
+      );
+    } else {
+      // Second click action
+      console.log("Second click action (handle previous)");
+      handlePrevious();
+    }
+    setClickCount(prevCount => prevCount + 1); // Increment click count
   };
 
   //previous
@@ -342,11 +374,11 @@ const Player = ({
             )}
             <h2>Now Playing</h2>
             {selectedTrack && (
-              <div>
+              <div className="Cover">
                 {albumImage && (
-                  <img src={albumImage[1].url} alt="Album Cover" />
+                  <img className="image" src={albumImage[1].url} alt="Album Cover" />
                 )}
-                <p>
+                <p className="title">
                   {songName} - {songArtist}
                 </p>
               </div>
@@ -365,16 +397,20 @@ const Player = ({
                 min={0}
                 max={100}
                 values={[progress]}
-                onChange={(newValues) => handleSeek(newValues[0])}
+                onClick={handleSeek}
+                onChange={(newValues) => {
+                  debouncedHandleSeek(newValues[0]);
+                }}
                 renderTrack={({ props, children }) => (
                   <div
                     {...props}
                     style={{
                       ...props.style,
-                      height: "1px",
+                      height: "5px",
+                      marginTop: "-8px",
                       width: "100%",
                       opacity: 1,
-                      backgroundColor: "white",
+                      backgroundColor: "transparent",
                     }}
                   >
                     {children}
@@ -391,7 +427,7 @@ const Player = ({
                       backgroundColor: "#14c91c",
                       cursor: "pointer",
                       position: "relative",
-                      top: "-6px",
+
                     }}
                   />
                 )}
@@ -411,38 +447,42 @@ const Player = ({
           <div style={{ display: showQueue ? "none" : "block" }}></div>
           <div className="player-controls">
             <div className="player-controls-container">
-            <button className="playButton" onClick={() => handlePrevious()}>
-              <IconContext.Provider value={{ size: "1.5em", color: "#14c91c" }}>
-                <BiSkipPrevious />
-              </IconContext.Provider>
-            </button>
-
-            {!isPlaying ? (
-              <button
-                className="playButton"
-                onClick={() => handleResume(songPlaying.uri)}
-              >
+              <button className="playButton" onClick={() => handleClick()}>
                 <IconContext.Provider
-                  value={{ size: "1.5em", color: "#14c91c" }}
+                  value={{ size: "3em", color: "#14c91c" }}
                 >
-                  <AiFillPlayCircle />
+                  <BiSkipPrevious />
                 </IconContext.Provider>
               </button>
-            ) : (
-              <button className="playButton" onClick={() => handlePause()}>
-                <IconContext.Provider
-                  value={{ size: "1.5em", color: "#14c91c" }}
+
+              {!isPlaying ? (
+                <button
+                  className="playButton"
+                  onClick={() => handleResume(songPlaying.uri)}
                 >
-                  <AiFillPauseCircle />
+                  <IconContext.Provider
+                    value={{ size: "3em", color: "#14c91c" }}
+                  >
+                    <AiFillPlayCircle />
+                  </IconContext.Provider>
+                </button>
+              ) : (
+                <button className="playButton" onClick={() => handlePause()}>
+                  <IconContext.Provider
+                    value={{ size: "3em", color: "#14c91c" }}
+                  >
+                    <AiFillPauseCircle />
+                  </IconContext.Provider>
+                </button>
+              )}
+
+              <button className="playButton" onClick={() => handleNext()}>
+                <IconContext.Provider
+                  value={{ size: "3em", color: "#14c91c" }}
+                >
+                  <BiSkipNext />
                 </IconContext.Provider>
               </button>
-            )}
-
-            <button className="playButton" onClick={() => handleNext()}>
-              <IconContext.Provider value={{ size: "1.5em", color: "#14c91c" }}>
-                <BiSkipNext />
-              </IconContext.Provider>
-            </button>
             </div>
             <div className="volume-control-container">
               <input
@@ -453,10 +493,12 @@ const Player = ({
                 onChange={VolumeChange}
               />
               <button className="playButton" onClick={handleToggleQueue}>
-            <IconContext.Provider value={{ size: "1.5em", color: "#14c91c" }}>
-            <PiQueueFill />
-              </IconContext.Provider>
-            </button>
+                <IconContext.Provider
+                  value={{ size: "3em", color: "#14c91c" }}
+                >
+                  <PiQueueFill />
+                </IconContext.Provider>
+              </button>
             </div>
           </div>
 

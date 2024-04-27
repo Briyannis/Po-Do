@@ -56,6 +56,12 @@ const Queue = ({ token, userID, selectedSong, setQIndex, songPlaying }) => {
                 {modQueue.map((song, index) => (
                   <div key={index}>
                     <li>
+                    <img
+                          className="album-cover"
+                          width={"15%"}
+                          src={song.album.images[2].url}
+                          alt="Track Cover"
+                        />
                       {song.name} - {song.artists[0].name}
                     </li>
                   </div>

@@ -10,7 +10,7 @@ function Settings() {
     <div style={{ textAlign: "left" }}>
       <label>work: {settingsInfo.workMinutes}:00</label>
       <ReactSlider
-        className={"slider"}
+        className={"slider red"}
         thumbClassName={"thumb"}
         trackClassName={"track"}
         value={settingsInfo.workMinutes}

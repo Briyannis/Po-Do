@@ -26,6 +26,16 @@ const Home = () => {
 
   const [darkmode, setDarkMode] = useState(false);
 
+  const [event, setEvent] = useState(null);
+
+  const eventChange = (e) => {
+    if(e === true && event === true){
+      setEvent(false)
+    }else {
+      setEvent(true)
+    }
+  };
+
   //Renders authentications for loggedin user
   useEffect(() => {
     const token = Cookies.get("token");
@@ -106,7 +116,7 @@ const Home = () => {
       {auth ? (
         <header>
           <h1>Po-Do</h1>
-          <h2>Hello {loginStatus.username}</h2>
+
           <div className="hamburger-menu" onClick={toggleDropdown}>
             <div className="bar"></div>
             <div className="bar"></div>
@@ -114,10 +124,8 @@ const Home = () => {
           </div>
           <div id="DarkModetext"></div>
           <div className="dropdown-menu" id="dropdownMenu">
-            <a href="/#">
-              Mode <button onClick={lightMode}>Light</button> /{" "}
-              <button onClick={darkMode}>Dark</button>
-            </a>
+          <a href="/#" onClick={lightMode}> <IoMdSunny/>Light</a>
+              <a href="/#" onClick={darkMode}> <IoMdMoon/> Dark</a>
             <a href="/#" onClick={openSettings}>
               Settings
             </a>
@@ -148,17 +156,16 @@ const Home = () => {
       )}
 
       <div className="content">
-        <div>
           <div className="calendar-container">
-            <Calendar />
+            <Calendar auth={auth} event={event} />
           </div>
-          <div>
-          <ToDoList loginStatusID={loginStatus.id} auth={auth} />
+          <div className="todo-list-container">
+          <ToDoList loginStatusID={loginStatus.id} auth={auth} event={eventChange} />
           </div>
-        </div>
-        <div className="cont">
-          <div className="container">
-            <main>
+      </div>
+      
+      <div className="cont">
+            <main className="container">
               <SettingsContext.Provider
                 value={{
                   showSettings,
@@ -172,7 +179,7 @@ const Home = () => {
                 {showSettings ? <Settings /> : <Timer />}
               </SettingsContext.Provider>
             </main>
-          </div>
+         
           <div className="music-overlay">
             {/* Render the MusicPlayer component in the background */}
             {auth ? (
@@ -184,16 +191,15 @@ const Home = () => {
                 style={{ display: "none" }}
               />
             ) : (
-              <div className="music-overlay">
+              <>
               <h1>Music Player</h1>
               <buttton className="signupMenubutton" onClick={openSignUpPopup}>
                 Sign Up
               </buttton>
-              </ div>
+              </>
             )}
           </div>
         </div>
-      </div>
 
       <AuthForm setLoginStatus={setLoginStatus} setAuth={setAuth} />
       <UserSettings
