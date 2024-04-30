@@ -183,7 +183,13 @@ const Home = () => {
           <div className="music-overlay">
             {/* Render the MusicPlayer component in the background */}
             {auth ? (
-              <p>player</p>
+              <MusicPlayer
+                auth={auth}
+                loginStatusID={loginStatus.id}
+                darkmode={darkmode}
+                spotLog={spotLog}
+                style={{ display: "none" }}
+              />
             ) : (
               <>
               <h1>Music Player</h1>

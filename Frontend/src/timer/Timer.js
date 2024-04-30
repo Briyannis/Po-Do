@@ -5,6 +5,7 @@ import PauseButton from "./PauseButton";
 import SettingsButton from "./SettingsButton";
 import { useContext, useState, useEffect, useRef } from "react";
 import SettingsContext from "./SettingsContext";
+import TimerNotify from "./Notification";
 
 const red = "#f54e4e";
 const green = "#4aec8c";
@@ -16,6 +17,8 @@ function Timer() {
   const [mode, setMode] = useState("work"); // work/break/null
   const [secondsLeft, setSecondsLeft] = useState(0);
 
+  const [showNotification, setShowNotification] = useState(false);
+
   const secondsLeftRef = useRef(secondsLeft);
   const isPausedRef = useRef(isPaused);
   const modeRef = useRef(mode);
@@ -23,6 +26,10 @@ function Timer() {
   function tick() {
     secondsLeftRef.current--;
     setSecondsLeft(secondsLeftRef.current);
+  }
+
+  function handleNotificationClose() {
+    setShowNotification(false);
   }
 
   useEffect(() => {
@@ -48,6 +55,7 @@ function Timer() {
         return;
       }
       if (secondsLeftRef.current === 0) {
+        setShowNotification(true);
         return switchMode();
       }
 
@@ -95,9 +103,30 @@ function Timer() {
           />
         )}
       </div>
-      <div style={{ marginTop: "20px", backgroundColor: "lightslategray",marginLeft: "85px", width:"fit-content", borderRadius:"10px"} }>
+      <div
+        style={{
+          marginTop: "20px",
+          backgroundColor: "lightslategray",
+          marginLeft: "85px",
+          width: "fit-content",
+          borderRadius: "10px",
+        }}
+      >
         <SettingsButton onClick={() => settingsInfo.setShowSettings(true)} />
       </div>
+
+      {showNotification &&
+        (mode === "work" ? (
+          <TimerNotify
+            message="Time to Study!"
+            onClose={handleNotificationClose}
+          />
+        ) : (
+          <TimerNotify
+            message="Time to Take a Break!"
+            onClose={handleNotificationClose}
+          />
+        ))}
     </div>
   );
 }

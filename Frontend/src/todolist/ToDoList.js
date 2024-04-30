@@ -45,14 +45,6 @@ const ToDoList = ({ loginStatusID, auth, event, eventCal }) => {
 
       const today = new Date();
       const formattedToday = today.toISOString().split("T")[0];
-
-      
-
-      if (task === null && newTaskDate === formattedToday) {
-        setTasks(task);
-      } else if (newTaskDate === formattedToday) {
-        setTasks((t) => [...t, task]);
-      }
       setNewTask("");
       setNewTaskDate("");
       setDescrip("");
@@ -61,6 +53,12 @@ const ToDoList = ({ loginStatusID, auth, event, eventCal }) => {
         ...task,
       })
         .then((response) => {
+          const newtask = response.data.data
+          if (task === null && newTaskDate === formattedToday) {
+            setTasks(newtask);
+          } else if (newTaskDate === formattedToday) {
+            setTasks((t) => [...t, newtask]);
+          }
           console.log(response.data.message);
         })
         .catch((error) => {
@@ -214,22 +212,27 @@ const ToDoList = ({ loginStatusID, auth, event, eventCal }) => {
     const task = tasks[index];
     const taskID = task.taskID;
 
-    Axios.delete("http://localhost:3001/tasks/podoDB/deleteTask", {
+
+    console.log(task)
+
+    Axios.delete(`http://localhost:3001/tasks/podoDB/deleteTask/${taskID}`, {
       data: {
         taskID: taskID,
       },
     })
       .then((response) => {
-
-        let tasks = JSON.parse(localStorage.getItem("TodaysTasks"))
-        const indexToRemove = tasks.findIndex(task => task.taskID === taskID);
-        if (indexToRemove !== -1) {
-          tasks.splice(indexToRemove, 1);
-          localStorage.setItem("TodaysTasks", JSON.stringify(tasks));
-        } else {
-          console.log("Task with taskID", taskID, "not found.");
+        let tasks = JSON.parse(localStorage.getItem("TodaysTasks"));
+        if (tasks) {
+          const indexToRemove = tasks.findIndex(task => task.taskID === taskID);
+          if (indexToRemove !== -1) {
+            tasks.splice(indexToRemove, 1);
+            localStorage.setItem("TodaysTasks", JSON.stringify(tasks));
+            setTasks(tasks);
+          } else {
+            console.log("Task with taskID", taskID, "not found.");
+          }
         }
-        setTasks(tasks);
+        setTasks(updatedTasks)
         event(true);
         console.log(response.data);
       })
@@ -397,7 +400,7 @@ const ToDoList = ({ loginStatusID, auth, event, eventCal }) => {
                   Add
                 </button>
                 <button
-                  className="add button"
+                  className="cancel button"
                   onClick={(event) => closeTaskPopup(event)}
                 >
                   Cancel

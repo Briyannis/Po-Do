@@ -100,8 +100,21 @@ router.get("/podoDB/getDayTask", async (req, res) => {
         descrip: descrip
       });
       console.log("Insert result:", result.success);
+
+      const userTask = await podoDB.query(
+        `SELECT * FROM tasks WHERE date = '${date}'`
+      );
+
+      const tasks = userTask.rows.length > 0 ? {
+        taskID: userTask.rows[0].TaskID,
+        task: userTask.rows[0].Title,
+        date: userTask.rows[0].Date,
+        descrip: userTask.rows[0].Descrip,
+      } : null;
+
+      console.log("added task", tasks)
   
-      res.status(200).json({ message: "Task inserted successfully" });
+      res.status(200).json({ message: "Task inserted successfully", data: tasks});
     } catch (err) {
       console.error("Error executing insert:", err);
       res.status(500).send("Error executing insert");
@@ -109,9 +122,11 @@ router.get("/podoDB/getDayTask", async (req, res) => {
   });
   
   //Delete Task request
-  router.delete("/podoDB/deleteTask", async (req, res) => {
+  router.delete("/podoDB/deleteTask/:taskID", async (req, res) => {
     try {
-      const taskID = req.body.taskID;
+      const taskID = req.params.taskID;
+
+      console.log(taskID)
   
       const deleteRes = await podoDB.delete("tasks", { taskID: taskID });
       console.log("Delete result:", deleteRes.success);
