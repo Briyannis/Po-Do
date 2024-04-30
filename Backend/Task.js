@@ -5,7 +5,49 @@ module.exports = function(podoDB){
     //Task Table
 
 //Get request to for Task table
-router.get("/podoDB/getTask", async (req, res) => {
+router.get("/podoDB/getDayTask", async (req, res) => {
+    try {
+      const userID = req.query.userID;
+  
+      if (!userID) {
+        return res.status(400).send(`User ID is required, ID: ${userID}`);
+      }
+  
+      const userTask = await podoDB.query(
+        `SELECT * FROM tasks WHERE userID = ${userID}`
+      );
+  
+      if (userTask.rows.length === 0) {
+        return res
+          .status(404)
+          .send(`No tasks found for the user with ID: ${userID}`);
+      }
+  
+      // Extracting tasks from the result
+      const tasks = userTask.rows.map((row) => ({
+        taskID: row.TaskID,
+        task: row.Title,
+        date: row.Date,
+        descrip: row.Descrip,
+      }));
+
+      const today = new Date();
+      const formattedToday = today.toISOString().split("T")[0];
+
+      const tasksForToday = tasks.filter((task) => {
+        const taskDate = new Date(task.date).toISOString().split("T")[0];
+        return taskDate === formattedToday;
+      });
+  
+      console.log("Tasks found:", tasks);
+      res.status(200).json(tasksForToday);
+    } catch (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Error executing query");
+    }
+  });
+
+  router.get("/podoDB/getTask", async (req, res) => {
     try {
       const userID = req.query.userID;
   
@@ -31,7 +73,7 @@ router.get("/podoDB/getTask", async (req, res) => {
         descrip: row.Descrip,
       }));
   
-      console.log("Tasks found:", tasks);
+      //console.log("Tasks found:", tasks);
       res.status(200).json(tasks);
     } catch (err) {
       console.error("Error executing query:", err);

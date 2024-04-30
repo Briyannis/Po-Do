@@ -9,9 +9,6 @@ import PreLoader1 from "./PreLoader1";
 const Playback = ({ token, userID, spotID }) => {
   const [player, setPlayer] = useState(undefined);
   const [device_id, setDeviceID] = useState();
-  const [songName, setSongName] = useState();
-  const [albumImage, setAlbumImage] = useState();
-  const [songArtist, setSongArtist] = useState();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -77,12 +74,6 @@ const Playback = ({ token, userID, spotID }) => {
 
   //console.log(loading);
 
-  const songInfo = (song_Info) => {
-    const { album, name, artists } = song_Info;
-    setAlbumImage(album.images);
-    setSongName(name);
-    setSongArtist(artists[0].name);
-  };
 
   // useEffect(() => {
   //   console.log(songName, albumImage, songArtist);
@@ -103,7 +94,6 @@ const Playback = ({ token, userID, spotID }) => {
               token={token}
               player={player}
               playerID={device_id}
-              songInfo={songInfo}
               userID={userID}
               loading={loading}
               spotID={spotID}

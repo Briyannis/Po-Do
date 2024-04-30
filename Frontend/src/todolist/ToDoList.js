@@ -8,7 +8,7 @@ import { FaArrowUp } from "react-icons/fa6";
 import { FaArrowDownLong } from "react-icons/fa6";
 import { IoIosAddCircle } from "react-icons/io";
 
-const ToDoList = ({ loginStatusID, auth, event }) => {
+const ToDoList = ({ loginStatusID, auth, event, eventCal }) => {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
   const [newTaskDate, setNewTaskDate] = useState("");
@@ -37,12 +37,20 @@ const ToDoList = ({ loginStatusID, auth, event }) => {
     if (
       newTask.trim() !== "" &&
       descrip.trim() !== "" &&
-      newTaskDate.trim() !== ""
+      newTaskDate.trim() !== "" &&
+      newTime.trim() !== ""
     ) {
-      const task = { task: newTask, descrip: descrip, date: newTaskDate };
-      if (task === null) {
+      const dateTimeString = newTaskDate + "T" + newTime;
+      const task = { task: newTask, descrip: descrip, date: dateTimeString };
+
+      const today = new Date();
+      const formattedToday = today.toISOString().split("T")[0];
+
+      
+
+      if (task === null && newTaskDate === formattedToday) {
         setTasks(task);
-      } else {
+      } else if (newTaskDate === formattedToday) {
         setTasks((t) => [...t, task]);
       }
       setNewTask("");
@@ -59,23 +67,56 @@ const ToDoList = ({ loginStatusID, auth, event }) => {
           console.error("Error adding task:", error);
           console.log(error.response.data.message);
         });
+
+      event(true);
     }
   }
 
   //gets users task
   useEffect(() => {
-    if (auth && loginStatusID) {
-      Axios.get(
-        `http://localhost:3001/tasks/podoDB/getTask?userID=${loginStatusID}`
-      )
-        .then((response) => {
-          setTasks(response.data);
-        })
-        .catch((error) => {
-          console.error("Error Getting task:", error);
-        });
-    }
+    const userTasks = () => {
+      if (auth && loginStatusID) {
+        const todaysTask = localStorage.getItem("TodaysTasks");
+
+        console.log(todaysTask);
+
+        Axios.get(
+          `http://localhost:3001/tasks/podoDB/getDayTask?userID=${loginStatusID}`
+        )
+          .then((response) => {
+            if (todaysTask === null) {
+              setTasks(response.data);
+            } else if (todaysTask !== null) {
+              const task = response.data;
+              const localTask = JSON.parse(todaysTask);
+              const sortedTasks = localTask.map((localTask) =>
+                task.find((task) => task.taskID === localTask.taskID)
+              );
+
+              setTasks(sortedTasks);
+            }
+          })
+          .catch((error) => {
+            console.error("Error Getting task:", error);
+          });
+      }
+    };
+
+    userTasks();
   }, [auth, loginStatusID]);
+
+  useEffect(() => {
+    const localTask = localStorage.getItem("TodaysTasks");
+
+    if(localTask === null){
+      localStorage.removeItem("TodaysTasks");
+    }
+  }, [tasks, eventCal])
+
+  // Inside the second useEffect
+  useEffect(() => {
+    console.log("tasks", tasks);
+  }, [tasks]);
 
   //add guest task and save tasks
   function guestAddTask() {
@@ -138,7 +179,7 @@ const ToDoList = ({ loginStatusID, auth, event }) => {
     if (auth) {
       localStorage.removeItem("guestTasks");
       setTasks(null);
-    } else if (auth === true) {
+    } else if (auth === false) {
       // Load guest tasks from local storage
       const guestTasks = JSON.parse(localStorage.getItem("guestTasks")) || [];
 
@@ -170,7 +211,6 @@ const ToDoList = ({ loginStatusID, auth, event }) => {
   // Retrieve the task from the user task table to delete
   function deleteTask(index) {
     const updatedTasks = tasks.filter((_, i) => i !== index);
-    setTasks(updatedTasks);
     const task = tasks[index];
     const taskID = task.taskID;
 
@@ -180,6 +220,17 @@ const ToDoList = ({ loginStatusID, auth, event }) => {
       },
     })
       .then((response) => {
+
+        let tasks = JSON.parse(localStorage.getItem("TodaysTasks"))
+        const indexToRemove = tasks.findIndex(task => task.taskID === taskID);
+        if (indexToRemove !== -1) {
+          tasks.splice(indexToRemove, 1);
+          localStorage.setItem("TodaysTasks", JSON.stringify(tasks));
+        } else {
+          console.log("Task with taskID", taskID, "not found.");
+        }
+        setTasks(tasks);
+        event(true);
         console.log(response.data);
       })
       .catch((error) => {
@@ -225,6 +276,7 @@ const ToDoList = ({ loginStatusID, auth, event }) => {
         updatedTasks[index - 1],
         updatedTasks[index],
       ];
+      localStorage.setItem("TodaysTasks", JSON.stringify(updatedTasks));
       setTasks(updatedTasks); // Update state with the updatedTasks array
 
       if (!auth) {
@@ -246,6 +298,7 @@ const ToDoList = ({ loginStatusID, auth, event }) => {
         updatedTasks[index + 1],
         updatedTasks[index],
       ];
+      localStorage.setItem("TodaysTasks", JSON.stringify(updatedTasks));
       setTasks(updatedTasks);
 
       if (!auth) {
@@ -286,7 +339,7 @@ const ToDoList = ({ loginStatusID, auth, event }) => {
           width: "fit-content",
           padding: "1px",
           marginTop: "10px",
-          marginLeft: "400px"
+          marginLeft: "400px",
         }}
         onClick={openTaskPopup}
       >
@@ -325,6 +378,14 @@ const ToDoList = ({ loginStatusID, auth, event }) => {
                 />
               </div>
               <div>
+                <input
+                  type="time"
+                  className="time-input"
+                  value={newTime}
+                  onChange={handleTimeInputChange}
+                />
+              </div>
+              <div>
                 <button
                   className="add button"
                   onClick={(event) => {
@@ -336,7 +397,7 @@ const ToDoList = ({ loginStatusID, auth, event }) => {
                   Add
                 </button>
                 <button
-                  className="cancel button"
+                  className="add button"
                   onClick={(event) => closeTaskPopup(event)}
                 >
                   Cancel
@@ -405,13 +466,56 @@ const ToDoList = ({ loginStatusID, auth, event }) => {
         </div>
       )}
       <ol className="scroll">
-        <div>{tasks &&
-          tasks.map((task, index) => (
-            <li key={index}>
-              <span className="text">
-                <strong style={{display: "flex"}}>Task:</strong> {task.task}
-              </span>
-              {auth ? (
+        <div>
+          {tasks &&
+            tasks.map((task, index) => (
+              <li key={index}>
+                <span className="text">
+                  <strong style={{ display: "flex" }}>Task:</strong> {task.task}
+                </span>
+                {auth ? (
+                  <button
+                    className="button"
+                    style={{
+                      background: "none",
+                      display: "inline-block",
+                      width: "fit-content",
+                      padding: "1px",
+                    }}
+                    onClick={() => deleteTask(index)}
+                  >
+                    <IconContext.Provider
+                      value={{
+                        size: "1em",
+                        color: "red",
+                        className: "deleteB",
+                      }}
+                    >
+                      <TiDelete />
+                    </IconContext.Provider>
+                  </button>
+                ) : (
+                  <button
+                    className="button"
+                    style={{
+                      background: "none",
+                      display: "inline-block",
+                      width: "fit-content",
+                      padding: "1px",
+                    }}
+                    onClick={() => guestDeleteTask(index)}
+                  >
+                    <IconContext.Provider
+                      value={{
+                        size: "1em",
+                        color: "red",
+                        className: "deleteB",
+                      }}
+                    >
+                      <TiDelete />
+                    </IconContext.Provider>
+                  </button>
+                )}
                 <button
                   className="button"
                   style={{
@@ -420,15 +524,14 @@ const ToDoList = ({ loginStatusID, auth, event }) => {
                     width: "fit-content",
                     padding: "1px",
                   }}
-                  onClick={() => deleteTask(index)}
+                  onClick={() => moveTaskUp(index)}
                 >
                   <IconContext.Provider
-                    value={{ size: "1em", color: "red", className: "deleteB" }}
+                    value={{ size: "1em", color: "#4169e1", className: "icon" }}
                   >
-                    <TiDelete />
+                    <FaArrowUp />
                   </IconContext.Provider>
                 </button>
-              ) : (
                 <button
                   className="button"
                   style={{
@@ -437,48 +540,17 @@ const ToDoList = ({ loginStatusID, auth, event }) => {
                     width: "fit-content",
                     padding: "1px",
                   }}
-                  onClick={() => guestDeleteTask(index)}
+                  onClick={() => moveTaskDown(index)}
                 >
                   <IconContext.Provider
-                    value={{ size: "1em", color: "red", className: "deleteB" }}
+                    value={{ size: "1em", color: "#4169e1" }}
                   >
-                    <TiDelete />
+                    <FaArrowDownLong />
                   </IconContext.Provider>
                 </button>
-              )}
-              <button
-                className="button"
-                style={{
-                  background: "none",
-                  display: "inline-block",
-                  width: "fit-content",
-                  padding: "1px",
-                }}
-                onClick={() => moveTaskUp(index)}
-              >
-                <IconContext.Provider
-                  value={{ size: "1em", color: "#4169e1", className: "icon" }}
-                >
-                  <FaArrowUp />
-                </IconContext.Provider>
-              </button>
-              <button
-                className="button"
-                style={{
-                  background: "none",
-                  display: "inline-block",
-                  width: "fit-content",
-                  padding: "1px",
-                }}
-                onClick={() => moveTaskDown(index)}
-              >
-                <IconContext.Provider value={{ size: "1em", color: "#4169e1" }}>
-                  <FaArrowDownLong />
-                </IconContext.Provider>
-              </button>
-            </li>
-          ))}
-          </div>
+              </li>
+            ))}
+        </div>
       </ol>
     </div>
   );

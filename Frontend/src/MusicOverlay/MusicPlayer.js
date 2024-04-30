@@ -8,8 +8,6 @@ import SpotifyLogin from "./spotifyLogin";
 const MusicPlayer = ({ auth, loginStatusID, darkmode, spotLog }) => {
   //spotify api connection
 
-  const [searchKey, setSearchKey] = useState();
-
   const [spotifyAccessToken, setSpotifyAccessToken] = useState();
   // eslint-disable-next-line
   const [spotifyRefreshToken, setSpotifyRefreshToken] = useState();
@@ -17,7 +15,7 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode, spotLog }) => {
 
 
   const [initialRender, setInitialRender] = useState(true);
-  const [selectedTrack, setSelectedTrack] = useState([]);
+  
 
  
 

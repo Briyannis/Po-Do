@@ -133,7 +133,7 @@ const AuthForm = ({ setLoginStatus, setAuth }) => {
               }
               required
             />
-            <button type="submit">{isSignUp ? "Sign Up" : "Sign In"}</button>
+            <button  type="submit">{isSignUp ? "Sign Up" : "Sign In"}</button>
             <a href="/#" onClick={toggleForm}>
               Sign {isSignUp ? "In" : "Up"}
             </a>

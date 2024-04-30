@@ -15,7 +15,6 @@ import { PiQueueFill } from "react-icons/pi";
 
 const Player = ({
   token,
-  currentSong,
   player,
   playerID,
   userID,

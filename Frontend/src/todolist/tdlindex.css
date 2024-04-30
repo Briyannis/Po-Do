@@ -34,10 +34,10 @@ h1 {
   cursor: pointer;
 }
 .add {
-  background-color: hsl(120, 100%, 25%);
+  background-color: hsl(209, 100%, 50%);
 }
 .add:hover {
-  background-color: hsl(120, 100%, 15%);
+  background-color: hsl(209, 100%, 30%);
 }
 .delete {
   background-color: hsl(0, 100%, 50%);
@@ -49,7 +49,7 @@ h1 {
   background-color: hsl(209, 100%, 50%);
 }
 .move:hover {
-  background-color: hsl(209, 100%, 40%);
+  background-color: hsl(209, 100%, 30%);
 }
 input[type="text"] {
   font-size: 1.6rem;

@@ -125,9 +125,14 @@ h1 {
 .signup-content button {
   display: block;
   width: 90%;
+  border-radius: 10px;
+  border-width: 2px;
   padding: 10px;
   margin-bottom: 10px;
   font-size: 15px;
+}
+.signup-content button:hover {
+  background-color: hsl(209, 100%, 30%);
 }
 
 .signup-content button {

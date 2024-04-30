@@ -157,10 +157,10 @@ const Home = () => {
 
       <div className="content">
           <div className="calendar-container">
-            <Calendar auth={auth} event={event} />
+            <Calendar auth={auth} event={event} loginStatusID={loginStatus.id} eventCal={eventChange} />
           </div>
           <div className="todo-list-container">
-          <ToDoList loginStatusID={loginStatus.id} auth={auth} event={eventChange} />
+          <ToDoList loginStatusID={loginStatus.id} auth={auth} event={eventChange}  eventCal={event} />
           </div>
       </div>
       
@@ -183,13 +183,7 @@ const Home = () => {
           <div className="music-overlay">
             {/* Render the MusicPlayer component in the background */}
             {auth ? (
-              <MusicPlayer
-                auth={auth}
-                loginStatusID={loginStatus.id}
-                darkmode={darkmode}
-                spotLog={spotLog}
-                style={{ display: "none" }}
-              />
+              <p>player</p>
             ) : (
               <>
               <h1>Music Player</h1>
