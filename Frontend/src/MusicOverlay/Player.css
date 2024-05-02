@@ -38,14 +38,14 @@
   }
 
   .slider-thumb {
-    position: left; /* Position thumb absolutely */
-    top: 50%; /* Position thumb vertically centered */
-    transform: translate(-50%, -50%); /* Center thumb horizontally */
-    width: 20px; /* Set the width of the thumb */
-    height: 20px; /* Set the height of the thumb */
-    background-color: green; /* Set the color of the thumb */
-    border-radius: 50%; /* Make the thumb round */
-    cursor: pointer; /* Set cursor to pointer */
+    position: left;
+    top: 50%; 
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px; 
+    background-color: green; 
+    border-radius: 50%; 
+    cursor: pointer; 
   }
   
   

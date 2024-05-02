@@ -15,7 +15,7 @@ const Playback = ({ token, userID, spotID }) => {
     const initializeSpotifySDK = async () => {
       try {
         const response = await Axios.post(
-          "http://localhost:3001/spotify-player/playerSDK"
+          "http://129.213.68.135/spotify-player/playerSDK"
         );
 
         const script = document.createElement("script");
@@ -34,7 +34,7 @@ const Playback = ({ token, userID, spotID }) => {
 
     window.onSpotifyWebPlaybackSDKReady = async () => {
       const res = await Axios.get(
-        "http://localhost:3001/spotify-player/SYSVolume"
+        "http://129.213.68.135/spotify-player/SYSVolume"
       );
       //console.log(res.data.volume)
       const vol = res.data.volume / 100;

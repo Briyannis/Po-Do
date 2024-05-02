@@ -3,7 +3,7 @@ import moment from "moment";
 import "./Calendar.css";
 import Axios from "axios";
 
-const Calendar = ({ auth, event, loginStatusID }) => {
+const Calendar = ({ auth, event, loginStatusID, eventCal }) => {
   const [currentDate, setCurrentDate] = useState(moment());
   const [showFullMonth, setShowFullMonth] = useState(false);
   const [events, setEvents] = useState([]);
@@ -12,17 +12,23 @@ const Calendar = ({ auth, event, loginStatusID }) => {
   const [eventName, setEventName] = useState("");
   const [eventDescription, setEventDescription] = useState("");
   const [showEventDescription, setShowEventDescription] = useState(null);
+  const [newTime, setNewTime] = useState("");
 
   const handleEventMouseEnter = (event) => {
     setShowEventDescription(event);
   };
 
+  function handleTimeInputChange(event) {
+    setNewTime(event.target.value);
+  }
+
   useEffect(() => {
     if (auth) {
+      //load users tasks
       localStorage.removeItem("guestTasks");
       const todaysTask = localStorage.getItem("TodaysTasks");
       Axios.get(
-        `http://localhost:3001/tasks/podoDB/getTask?userID=${loginStatusID}`
+        `http://129.213.68.135/tasks/podoDB/getTask?userID=${loginStatusID}`
       )
         .then((response) => {
           if (todaysTask === null) {
@@ -42,13 +48,12 @@ const Calendar = ({ auth, event, loginStatusID }) => {
       // Load guest tasks from local storage
       const guestTasks = JSON.parse(localStorage.getItem("guestTasks")) || [];
 
-      // Set the guest tasks as the initial state for tasks
-
+      // Compare the Date objects
       guestTasks.sort((a, b) => {
         const timeA = new Date(`2000-01-01T${a.timestamp}`);
         const timeB = new Date(`2000-01-01T${b.timestamp}`);
 
-        // Compare the Date objects
+       
         return timeA - timeB;
       });
 
@@ -58,8 +63,9 @@ const Calendar = ({ auth, event, loginStatusID }) => {
 
   //console.log(events)
 
-  useEffect(() => {
+  const getEvents = () => {
     if (auth === false) {
+      console.log("this is geust")
       const storedTasks = JSON.parse(localStorage.getItem("guestTasks")) || [];
       setEvents(storedTasks);
 
@@ -78,7 +84,7 @@ const Calendar = ({ auth, event, loginStatusID }) => {
       };
     } else if(auth === true){
       Axios.get(
-        `http://localhost:3001/tasks/podoDB/getTask?userID=${loginStatusID}`
+        `http://129.213.68.135/tasks/podoDB/getTask?userID=${loginStatusID}`
       )
         .then((response) => {
 
@@ -89,9 +95,14 @@ const Calendar = ({ auth, event, loginStatusID }) => {
           console.error("Error Getting task:", error);
         });
     }
+   }
+
+  useEffect(() => {
+
+   getEvents()
   }, [event]);
 
-  console.log(events);
+  //console.log(events);
 
   const daysInMonth = () => {
     return currentDate.daysInMonth();
@@ -120,20 +131,61 @@ const Calendar = ({ auth, event, loginStatusID }) => {
 
   const handleSaveEvent = () => {
     if (eventDate && eventName) {
-      setEvents([
-        ...events,
-        {
-          date: eventDate,
-          name: eventName,
-          description: eventDescription,
-        },
-      ]);
+
+      const formattedDate = eventDate.toISOString().split("T")[0];
+
+      const newEvent = {
+        task: eventName,
+        descrip: eventDescription,
+        date: formattedDate,
+        timestamp: newTime,
+      }
+      if(auth){
+        //user
+        console.log(formattedDate)
+        const dateTimeString = formattedDate + "T" + newTime;
+        console.log(dateTimeString)
+        const event = { task: eventName, descrip: eventDescription, date: dateTimeString };
+
+        Axios.post("http://129.213.68.135/tasks/podoDB/insertTask", {
+        userID: loginStatusID,
+        ...event,
+      }).then((response) => {
+        if(response.status === 200){
+          getEvents();
+        }
+        
+      } )
+
+      }else {
+        //guest
+        const events = JSON.parse(localStorage.getItem("guestTasks")) || [];
+
+        const Events = [...events, newEvent];
+
+        //for calendar event output
+        const updatedEvents = Events.map((tasks) => ({
+          name: tasks.task,
+          description: tasks.descrip,
+          date: tasks.date,
+          timestamp: tasks.timestamp
+        }))
+
+        localStorage.setItem("guestTasks", JSON.stringify(Events));
+        console.log(updatedEvents)
+        setEvents(updatedEvents);
+
+      }
+      
       setShowEventModal(false);
+      eventCal(true)
       setEventDate(null);
       setEventName("");
       setEventDescription("");
     }
   };
+
+  //console.log(events)
 
   const handleCancelEvent = () => {
     setShowEventModal(false);
@@ -149,6 +201,8 @@ const Calendar = ({ auth, event, loginStatusID }) => {
   const handleEventMouseLeave = () => {
     setShowEventDescription(null);
   };
+
+  
 
 
   return (
@@ -184,6 +238,15 @@ const Calendar = ({ auth, event, loginStatusID }) => {
                 onChange={(e) => setEventDate(moment(e.target.value))}
               />
             </label>
+            <div>
+              Time:
+                <input
+                  type="time"
+                  className="time-input"
+                  value={newTime}
+                  onChange={handleTimeInputChange}
+                />
+              </div>
             <label>
               Event Name:
               <input

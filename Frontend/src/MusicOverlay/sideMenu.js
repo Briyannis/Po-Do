@@ -43,7 +43,7 @@ const SideMenu = ({
       
       console.log(spotifyAccessToken);
       const response = await Axios.get(
-        "http://localhost:3001/spotify-api/search",
+        "http://129.213.68.135/spotify-api/search",
         {
           headers: {
             Authorization: `Bearer ${spotifyAccessToken}`,
@@ -86,7 +86,7 @@ const SideMenu = ({
                       border: "none",
                       zIndex: 1,
                     }} type="submit">
-                <IconContext.Provider value={{ size: "1em", color: "#27AE60" }}>
+                <IconContext.Provider value={{ size: "2em", color: "#27AE60" }}>
                   <BiSearchAlt />
                 </IconContext.Provider>
               </button>
@@ -105,7 +105,8 @@ const SideMenu = ({
             />
           )}</>)}
 
-          <div>
+          <div >
+            <h3 style={{paddingTop: "15px", paddingBottom: "15px"}}>Library</h3>
             <Library
               token={spotifyAccessToken}
               spotID={spotID}

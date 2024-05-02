@@ -17,7 +17,7 @@ const Queue = ({ token, userID, selectedSong, setQIndex, songPlaying }) => {
       try {
         //console.log(queue);
         const res = await Axios.get(
-          `http://localhost:3001/queue/Queue/${userID}/${token}`
+          `http://129.213.68.135/queue/Queue/${userID}/${token}`
         );
 
         //console.log(res.data)

@@ -7,7 +7,7 @@ function TimerNotify({ message, onClose }) {
     const timeout = setTimeout(() => {
         setShow(false);
       onClose();
-    }, 5000); // Adjust the timeout duration as needed
+    }, 5000);
 
     return () => clearTimeout(timeout);
   }, []);

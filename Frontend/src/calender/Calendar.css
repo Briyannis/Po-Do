@@ -78,5 +78,10 @@
 }
 
 .event-description {
+  position: absolute;
   padding: 10px;
+  border-radius: 5px;
+  background-color: white;
+  border: 1px solid #ccc;
+  z-index: 999;
 }

@@ -48,16 +48,16 @@ const ToDoList = ({ loginStatusID, auth, event, eventCal }) => {
       setNewTask("");
       setNewTaskDate("");
       setDescrip("");
-      Axios.post("http://localhost:3001/tasks/podoDB/insertTask", {
+      Axios.post("http://129.213.68.135/tasks/podoDB/insertTask", {
         userID: loginStatusID,
         ...task,
       })
         .then((response) => {
           const newtask = response.data.data
-          if (task === null && newTaskDate === formattedToday) {
+          if (tasks === null && newTaskDate === formattedToday) {
             setTasks(newtask);
           } else if (newTaskDate === formattedToday) {
-            setTasks((t) => [...t, newtask]);
+            userTasks()
           }
           console.log(response.data.message);
         })
@@ -70,51 +70,54 @@ const ToDoList = ({ loginStatusID, auth, event, eventCal }) => {
     }
   }
 
+  const userTasks = () => {
+    if (auth && loginStatusID) {
+      const todaysTask = localStorage.getItem("TodaysTasks");
+
+      if(todaysTask === null || []) {
+        localStorage.removeItem("TodaysTasks");
+      }
+
+      //console.log(todaysTask);
+
+      Axios.get(
+        `http://129.213.68.135/tasks/podoDB/getDayTask?userID=${loginStatusID}`
+      )
+        .then((response) => {
+          console.log(response)
+          if (todaysTask === null || []) {
+            //console.log(response.data)
+            setTasks(response.data);
+          } else if (todaysTask !== null) {
+            const task = response.data;
+            console.log(task)
+            const localTask = JSON.parse(todaysTask);
+            const sortedTasks = localTask.map((localTask) =>
+              task.find((task) => task.taskID === localTask.taskID)
+            );
+
+            setTasks(sortedTasks);
+          }
+        })
+        .catch((error) => {
+          console.error("Error Getting task:", error);
+        });
+    }
+  };
+
   //gets users task
   useEffect(() => {
-    const userTasks = () => {
-      if (auth && loginStatusID) {
-        const todaysTask = localStorage.getItem("TodaysTasks");
-
-        console.log(todaysTask);
-
-        Axios.get(
-          `http://localhost:3001/tasks/podoDB/getDayTask?userID=${loginStatusID}`
-        )
-          .then((response) => {
-            if (todaysTask === null) {
-              setTasks(response.data);
-            } else if (todaysTask !== null) {
-              const task = response.data;
-              const localTask = JSON.parse(todaysTask);
-              const sortedTasks = localTask.map((localTask) =>
-                task.find((task) => task.taskID === localTask.taskID)
-              );
-
-              setTasks(sortedTasks);
-            }
-          })
-          .catch((error) => {
-            console.error("Error Getting task:", error);
-          });
-      }
-    };
 
     userTasks();
-  }, [auth, loginStatusID]);
+  }, [auth, loginStatusID, eventCal]);
 
-  useEffect(() => {
-    const localTask = localStorage.getItem("TodaysTasks");
-
-    if(localTask === null){
-      localStorage.removeItem("TodaysTasks");
-    }
-  }, [tasks, eventCal])
 
   // Inside the second useEffect
   useEffect(() => {
     console.log("tasks", tasks);
   }, [tasks]);
+
+  //console.log(tasks)
 
   //add guest task and save tasks
   function guestAddTask() {
@@ -204,7 +207,7 @@ const ToDoList = ({ loginStatusID, auth, event, eventCal }) => {
 
       return () => clearInterval(interval);
     }
-  }, [CHECK_INTERVAL, TIME_LIMIT, auth]);
+  }, [CHECK_INTERVAL, TIME_LIMIT, auth, eventCal]);
 
   // Retrieve the task from the user task table to delete
   function deleteTask(index) {
@@ -215,7 +218,7 @@ const ToDoList = ({ loginStatusID, auth, event, eventCal }) => {
 
     console.log(task)
 
-    Axios.delete(`http://localhost:3001/tasks/podoDB/deleteTask/${taskID}`, {
+    Axios.delete(`http://129.213.68.135/tasks/podoDB/deleteTask/${taskID}`, {
       data: {
         taskID: taskID,
       },
@@ -469,7 +472,7 @@ const ToDoList = ({ loginStatusID, auth, event, eventCal }) => {
         </div>
       )}
       <ol className="scroll">
-        <div>
+        <div style={{marginBottom: "20px"}}>
           {tasks &&
             tasks.map((task, index) => (
               <li key={index}>

@@ -35,7 +35,7 @@ const SearchResult = ({
           //console.log(selectedAlbum.id)
 
           const response = await Axios.get(
-            `http://localhost:3001/spotify-api/albums/${selectedAlbum.id}`,
+            `http://129.213.68.135/spotify-api/albums/${selectedAlbum.id}`,
             {
               headers: {
                 Authorization: `Bearer ${spotifyAccessToken}`,
@@ -60,7 +60,7 @@ const SearchResult = ({
           console.log("Artist", selectedArtist);
 
           const response = await Axios.get(
-            `http://localhost:3001/spotify-api/artistsTracks/${selectedArtist.id}`,
+            `http://129.213.68.135/spotify-api/artistsTracks/${selectedArtist.id}`,
             {
               headers: {
                 Authorization: `Bearer ${spotifyAccessToken}`,
@@ -81,7 +81,7 @@ const SearchResult = ({
         if (selectedArtist && selectedArtist !== null) {
           //console.log("id", selectedArtist)
           const response = await Axios.get(
-            `http://localhost:3001/spotify-api/artistsAlbums/${selectedArtist.id}`,
+            `http://129.213.68.135/spotify-api/artistsAlbums/${selectedArtist.id}`,
             {
               headers: {
                 Authorization: `Bearer ${spotifyAccessToken}`,
@@ -126,7 +126,7 @@ const SearchResult = ({
   const AddToQueue = async (track) => {
     //console.log(`track ${track}, device id ${device_ID}`)
     try {
-      await Axios.post(`http://localhost:3001/queue/addQueue/${track.uri}`, {
+      await Axios.post(`http://129.213.68.135/queue/addQueue/${track.uri}`, {
         userID: userID,
       }).catch((error) => {
         console.log(`error inserting: ${error}`);
@@ -135,7 +135,7 @@ const SearchResult = ({
       //console.log(addQueue.data);
 
       const res = await Axios.post(
-        `http://localhost:3001/spotify-player/addToQueue/${track.uri}/${spotifyAccessToken}`
+        `http://129.213.68.135/spotify-player/addToQueue/${track.uri}/${spotifyAccessToken}`
       );
       console.log(res.status);
 
@@ -152,20 +152,19 @@ const SearchResult = ({
 
   //console.log(searchResults);
 
+  //console.log(searchResults.tracks)
+
   return (
     <div className="scroll">
       <div>
-        {
-          //search results list
-        }
         {!selectedAlbum &&
           !selectedArtist &&
           (searchResults.tracks.length !== 0 ||
             searchResults.artists.length !== 0 ||
             searchResults.albums.length !== 0) && (
-            <>
-              <div className="scroll">
-                <h4>Songs</h4>
+            <div className="results">
+              <div className="scroll-pad">
+              <h4>Songs</h4>
                 {searchResults.tracks.map((track, index) => (
                   <div key={index} className="search-result">
                     <li
@@ -197,7 +196,7 @@ const SearchResult = ({
                         }}
                       >
                         <IconContext.Provider
-                          value={{ size: "1em", color: "#27AE60" }}
+                          value={{ size: "2em", color: "#27AE60" }}
                         >
                           <MdQueue />
                         </IconContext.Provider>
@@ -208,8 +207,9 @@ const SearchResult = ({
                   </div>
                 ))}
               </div>
+              <h4 style={{paddingBottom: "10px"}}>Artists</h4>
               <div className="scroll">
-                <h4>Artists</h4>
+              <div style={{paddingTop: "1700px"}}>
                 {searchResults.artists.map((artist, index) => (
                   <div key={index} className="search-result">
                     <li
@@ -230,9 +230,11 @@ const SearchResult = ({
                     </li>
                   </div>
                 ))}
+                </div>
               </div>
+              <h4 style={{paddingBottom: "10px"}}>Albums</h4>
               <div className="scroll">
-                <h4>Albums</h4>
+                <div style={{paddingTop: "1700px"}}>
                 {searchResults.albums.map((album, index) => (
                   <div key={index} className="search-result">
                     <li
@@ -256,15 +258,16 @@ const SearchResult = ({
                     </li>
                   </div>
                 ))}
+                </div>
               </div>
-            </>
+            </div>
           )}
 
         {
           //shows selected albums
         }
         {selectedAlbum && (
-          <div>
+          <div style={{paddingTop: "850px"}}>
             <button 
             style={{
               background: "transparent",
@@ -272,7 +275,7 @@ const SearchResult = ({
               marginLeft: "-35px",
             }}
             onClick={() => setSelectedAlbum(null)}>
-            <IconContext.Provider value={{ size: "1em", color: "#27AE60" }}>
+            <IconContext.Provider value={{ size: "2em", color: "#27AE60" }}>
                   <IoCaretBack />
                 </IconContext.Provider>
                </button>
@@ -308,39 +311,40 @@ const SearchResult = ({
           //shows selected artist
         }
         {selectedArtist && artistTracks && artistAlbums && (
-          <div>
+          <div style={{paddingTop: "550px"}}>
             {selectedArtist && hideArtist === false && (
               <button style={{
                 background: "transparent",
                 border: "none",
                 marginLeft: "-35px",
               }} onClick={artistBack}>
-                <IconContext.Provider value={{ size: "1em", color: "#27AE60" }}>
+                <IconContext.Provider value={{ size: "2em", color: "#27AE60" }}>
                   <IoCaretBack />
                 </IconContext.Provider>
               </button>
             )}
             {artistSelectedAlbum && hideArtist === true && (
               <button
-                onClick={artistAlbumBack}
+                onClick={() => artistAlbumBack}
                 style={{
                   background: "transparent",
                   border: "none",
                   marginLeft: "-35px",
                 }}
               >
-                <IconContext.Provider value={{ size: "1em", color: "#27AE60" }}>
+                <IconContext.Provider value={{ size: "2em", color: "#27AE60" }}>
                   <IoCaretBack />
                 </IconContext.Provider>
               </button>
             )}
             <h2>{selectedArtist.name}</h2>
 
+            <div style={{paddingTop: "10px"}}>
+              <h4 style={{paddingBottom: "10px"}}>Albums</h4>
             {selectedArtist && hideArtist === false && (
               <div>
                 <div className="scroll">
-                  <h4>Albums</h4>
-                  <ul>
+                  <ul style={{paddingTop: "1700px"}}>
                     {artistAlbums.map((album, index) => (
                       <div key={index}>
                         <li
@@ -370,23 +374,27 @@ const SearchResult = ({
                 </div>
               </div>
             )}
+            </div>
             {
               //shows selected artist albums
             }
             {artistSelectedAlbum && (
+              <>          
               <ArtistAlbumTracks
                 userID={userID}
                 artistSelectedAlbum={artistSelectedAlbum}
                 spotifyAccessToken={spotifyAccessToken}
                 trackSelected={trackSelected}
+                AlbumBack={artistAlbumBack()}
               />
+              </>
             )}
 
             {selectedArtist && hideArtist === false && (
               <div>
+                <h4 style={{paddingTop: "10px", paddingBottom: "10px"}}>Songs</h4>
                 <div className="scroll">
-                  <h4>Songs</h4>
-                  <ul>
+                  <ul style={{paddingTop: "550px"}}>
                     {artistTracks.map((track, index) => (
                       <div key={index}>
                         <li
@@ -417,7 +425,7 @@ const SearchResult = ({
                             }}
                           >
                             <IconContext.Provider
-                              value={{ size: "1em", color: "#27AE60" }}
+                              value={{ size: "2em", color: "#27AE60" }}
                             >
                               <MdQueue />
                             </IconContext.Provider>

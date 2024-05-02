@@ -31,18 +31,31 @@
 }
 
 .scroll {
-  scrollbar-width: thin;
+  scrollbar-width: none;
   width: 300px;
   overflow-y: auto;
   max-height: 400px;
 }
-.scroll-side {
-  display: inline-block;
-  scrollbar-width: thin;
+
+.scroll-library {
+  scrollbar-width: none;
   width: 300px;
-  overflow: auto;
-  white-space: nowrap;
+  overflow-y: auto;
   max-height: 400px;
+}
+
+
+
+.scroll-pad {
+  scrollbar-width: none;
+  width: 300px;
+  padding-top: 180px;
+  margin-top: -400px;
+  overflow-y: auto;
+  max-height: 400px;
+}
+.results {
+  margin-top: 930px;
 }
 
 .dark-mode .music-player {

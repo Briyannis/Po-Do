@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "../styles.css";
 import { useState } from "react";
 import Axios from "axios";
@@ -17,6 +17,27 @@ const UserSettings = ({
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [showUpdateNameForm, setShowUpdateNameForm] = useState(false);
   const [changePass, setChangePass] = useState(false);
+  const [linked, setLinked] = useState(false)
+
+ 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await Axios.get(
+          `http://129.213.68.135/spotify-api/gettokens?userID=${userID}`
+        );
+  
+        if (response.data !== null) {
+          setLinked(true);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+  
+    fetchData(); // Call fetchData function
+  
+  }, [userID]);
 
   const handleChangePassClick = () => {
     setChangePass(true);
@@ -40,7 +61,7 @@ const UserSettings = ({
 
   const handleUpdates = () => {
     Axios.post(
-      `http://localhost:3001/auth/updateUser?userID=${userID}&username=${formValues.username}&email=${formValues.email}&newPass=${formValues.password}&oldPass=${oldPass}`
+      `http://129.213.68.135/auth/updateUser?userID=${userID}&username=${formValues.username}&email=${formValues.email}&newPass=${formValues.password}&oldPass=${oldPass}`
     )
       .then((res) => {
         updateLoginStatus(res.data);
@@ -61,16 +82,21 @@ const UserSettings = ({
   const handleSpotLogout = async () => {
     console.log(userID);
     await Axios.delete(
-      `http://localhost:3001/spotify-api/logout/${userID}`,
+      `http://129.213.68.135/spotify-api/logout/${userID}`,
       { userID: userID }
     ).then ((res) => {
-      window.location.href = "https://accounts.spotify.com/logout";
+
+
 
     }).catch((err) => {
       console.log(err);
     })
    
     
+  };
+
+  const handleSpotifyLogin = () => {
+    window.location.href = "http://129.213.68.135/spotify-api/login";
   };
 
   return (
@@ -174,9 +200,11 @@ const UserSettings = ({
             </h2>
             <div style={{ display: "flex", alignItems: "center" }}>
               <h3>Spotify</h3>
-              <button style={{ marginLeft: "10px" }} onClick={handleSpotLogout}>
+              {linked ? (<button style={{ marginLeft: "10px" }} onClick={handleSpotLogout}>
                 unlink
-              </button>
+              </button>) : <button style={{ marginLeft: "10px" }} onClick={ handleSpotifyLogin}>
+                link
+              </button>}
             </div>
           </>
         ) : (

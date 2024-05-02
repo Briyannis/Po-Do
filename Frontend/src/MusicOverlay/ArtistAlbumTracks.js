@@ -11,7 +11,7 @@ const ArtistAlbumTracks = ({
   trackSelected,
   userID
 }) => {
-  const [artistAlbumTracks, setArtistAlbumTracks] = useState([]);
+  const [artistAlbumTracks, setArtistAlbumTracks, AlbumBack] = useState([]);
 
   useEffect(() => {
     const fetchArtistAlbumTracks = async () => {
@@ -20,7 +20,7 @@ const ArtistAlbumTracks = ({
         if (artistSelectedAlbum && artistSelectedAlbum !== null) {
           console.log(artistSelectedAlbum);
           const response = await Axios.get(
-            `http://localhost:3001/spotify-api/albums/${artistSelectedAlbum.id}`,
+            `http://129.213.68.135/spotify-api/albums/${artistSelectedAlbum.id}`,
             {
               headers: {
                 Authorization: `Bearer ${spotifyAccessToken}`,
@@ -42,7 +42,7 @@ const ArtistAlbumTracks = ({
   const AddToQueue = async (track) => {
     //console.log(`track ${track}, device id ${device_ID}`)
     try {
-      await Axios.post(`http://localhost:3001/queue/addQueue/${track.uri}`, {
+      await Axios.post(`http://129.213.68.135/queue/addQueue/${track.uri}`, {
         userID: userID,
       }).catch((error) => {
         console.log(`error inserting: ${error}`);
@@ -51,7 +51,7 @@ const ArtistAlbumTracks = ({
       //console.log(addQueue.data);
 
       const res = await Axios.post(
-        `http://localhost:3001/spotify-player/addToQueue/${track.uri}/${spotifyAccessToken}`
+        `http://129.213.68.135/spotify-player/addToQueue/${track.uri}/${spotifyAccessToken}`
       );
       console.log(res.status);
 
@@ -62,9 +62,19 @@ const ArtistAlbumTracks = ({
   };
 
   return (
-    <div>
+    <div style={{paddingTop: "200px"}}>
       {artistSelectedAlbum && (
         <div>
+          <button style={{
+                background: "transparent",
+                border: "none",
+                marginLeft: "-35px",
+                paddingTop: "220"
+            }} onClick={AlbumBack}>
+                <IconContext.Provider value={{ size: "2em", color: "#27AE60" }}>
+                    <IoCaretBack />
+                </IconContext.Provider>
+            </button>  
           <h4>{artistSelectedAlbum.name}</h4>
           <ul>
             {artistAlbumTracks.map((track, index) => (
@@ -95,7 +105,7 @@ const ArtistAlbumTracks = ({
                               }}
                             >
                               <IconContext.Provider
-                                value={{ size: "1em", color: "#27AE60" }}
+                                value={{ size: "2em", color: "#27AE60" }}
                               >
                                 <MdQueue />
                               </IconContext.Provider>

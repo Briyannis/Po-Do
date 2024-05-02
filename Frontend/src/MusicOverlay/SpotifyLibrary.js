@@ -20,10 +20,10 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
   useEffect(() => {
     const getLibrary = async () => {
       const albums = await Axios.get(
-        `http://localhost:3001/Spotifylibray/usersSavedAlbums/${token}`
+        `http://129.213.68.135/Spotifylibray/usersSavedAlbums/${token}`
       );
       const tracks = await Axios.get(
-        `http://localhost:3001/Spotifylibray/usersSavedTracks/${token}`
+        `http://129.213.68.135/Spotifylibray/usersSavedTracks/${token}`
       );
 
       //console.log(albums);
@@ -47,7 +47,7 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
           //console.log(selectedAlbum.id)
 
           const response = await Axios.get(
-            `http://localhost:3001/spotify-api/albums/${selectedAlbum.id}`,
+            `http://129.213.68.135/spotify-api/albums/${selectedAlbum.id}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -68,7 +68,7 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
   const AddToQueue = async (track) => {
     //console.log(`track ${track}, device id ${device_ID}`)
     try {
-      await Axios.post(`http://localhost:3001/queue/addQueue/${track.uri}`, {
+      await Axios.post(`http://129.213.68.135/queue/addQueue/${track.uri}`, {
         userID: userID,
       }).catch((error) => {
         console.log(`error inserting: ${error}`);
@@ -77,7 +77,7 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
       //console.log(addQueue.data);
 
       const res = await Axios.post(
-        `http://localhost:3001/spotify-player/addToQueue/${track.uri}/${token}`
+        `http://129.213.68.135/spotify-player/addToQueue/${track.uri}/${token}`
       );
       console.log(res.status);
 
@@ -90,7 +90,7 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
   //console.log(album)
 
   return (
-    <div style={{ marginTop: "50px" }}>
+    <div>
       {isLoading ? (
         <div className="loading-container">
           <div className="loading">
@@ -101,7 +101,7 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
         <>
           {track && album && !selectedAlbum ? (
             <>
-              <div className="scroll">
+              <div className="scroll-library">
                 <h4>Albums</h4>
                 {album.map((albumItem, index) => (
                   <div key={index} className="search-result">
@@ -126,7 +126,7 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
                   </div>
                 ))}
               </div>
-              <div className="scroll">
+              <div className="scroll-library">
                 <h4>Songs</h4>
                 {track.map((trackItem, index) => (
                   <div key={index} className="search-result">
@@ -160,7 +160,7 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
                         }}
                       >
                         <IconContext.Provider
-                          value={{ size: "1em", color: "#27AE60" }}
+                          value={{ size: "2em", color: "#27AE60" }}
                         >
                           <MdQueue />
                         </IconContext.Provider>
@@ -183,7 +183,7 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
                     onClick={() => setSelectedAlbum(null)}
                   >
                     <IconContext.Provider
-                      value={{ size: "1em", color: "#27AE60" }}
+                      value={{ size: "2em", color: "#27AE60" }}
                     >
                       <IoCaretBack />
                     </IconContext.Provider>
@@ -222,7 +222,7 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
                             }}
                           >
                             <IconContext.Provider
-                              value={{ size: "1em", color: "#27AE60" }}
+                              value={{ size: "2em", color: "#27AE60" }}
                             >
                               <MdQueue />
                             </IconContext.Provider>
