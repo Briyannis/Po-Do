@@ -54,7 +54,7 @@ const Player = ({
     const avaDevice = async () => {
       try {
         const res = await Axios.get(
-          `http://129.213.68.135/spotify-player/avaDevice/${token}`,
+          `http://129.213.68.135/api/spotify-player/avaDevice/${token}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -89,7 +89,7 @@ const Player = ({
       try {
         //console.log(deviceInfo);
         const res = await Axios.put(
-          `http://129.213.68.135/spotify-player/transferPlayer/${token}/${deviceInfo.id}`,
+          `http://129.213.68.135/api/spotify-player/transferPlayer/${token}/${deviceInfo.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -115,11 +115,11 @@ const Player = ({
     const playerState = async () => {
       try {
         const res2 = await Axios.get(
-          `http://129.213.68.135/spotify-player/currentlyPlaying/${token}`
+          `http://129.213.68.135/api/spotify-player/currentlyPlaying/${token}`
         );
 
         const res = await Axios.get(
-          `http://129.213.68.135/spotify-player/PlaybackState/${token}`
+          `http://129.213.68.135/api/spotify-player/PlaybackState/${token}`
         );
         if (res.data && res2.data) {
           const { item, progress_ms } = res.data;
@@ -173,7 +173,7 @@ const Player = ({
       setTrackInfo({ ...trackInfo, position: seekPosition });
 
       const response = await Axios.put(
-        `http://129.213.68.135/spotify-player/seekPlayer/${seekPosition}/${token}/${deviceInfo.id}`
+        `http://129.213.68.135/api/spotify-player/seekPlayer/${seekPosition}/${token}/${deviceInfo.id}`
       );
       setTrackInfo({ ...trackInfo, position: seekPosition });
 
@@ -199,7 +199,7 @@ const Player = ({
   const handlePause = async () => {
     if (player) {
       const response = await Axios.put(
-        `http://129.213.68.135/spotify-player/pausePlayer/${token}/${deviceInfo.id}`
+        `http://129.213.68.135/api/spotify-player/pausePlayer/${token}/${deviceInfo.id}`
       );
       setIsPlaying(false);
       console.log(response.status);
@@ -213,7 +213,7 @@ const Player = ({
       // First click action
       console.log("First click action");
       const response = await Axios.put(
-        `http://129.213.68.135/spotify-player/seekPlayer/${0}/${token}/${deviceInfo.id}`
+        `http://129.213.68.135/api/spotify-player/seekPlayer/${0}/${token}/${deviceInfo.id}`
       );
     } else {
       // Second click action
@@ -227,7 +227,7 @@ const Player = ({
   const handlePrevious = async () => {
     if (player) {
       const response = await Axios.post(
-        `http://129.213.68.135/spotify-player/previousPlayer/${token}`
+        `http://129.213.68.135/api/spotify-player/previousPlayer/${token}`
       );
       setIsPlaying(true);
       console.log(response.status);
@@ -238,16 +238,16 @@ const Player = ({
   const handleNext = async () => {
     if (player) {
       await Axios.post(
-        `http://129.213.68.135/spotify-player/skipPlayer/${token}/${deviceInfo.id}`
+        `http://129.213.68.135/api/spotify-player/skipPlayer/${token}/${deviceInfo.id}`
       );
 
       try {
         const Q = await Axios.get(
-          `http://129.213.68.135/queue/userQueue/${userID}`
+          `http://129.213.68.135/api/queue/userQueue/${userID}`
         );
 
         const deleteQ = await Axios.delete(
-          `http://129.213.68.135/queue/userDeleteQueue/${userID}/${qIndex}`
+          `http://129.213.68.135/api/queue/userDeleteQueue/${userID}/${qIndex}`
         );
         console.log(deleteQ.data);
         setQIndex(deleteQ.data);
@@ -259,7 +259,7 @@ const Player = ({
           const index = error.response.data.index;
           setQIndex(index);
           await Axios.put(
-            `http://129.213.68.135/spotify-player/pausePlayer/${token}/${deviceInfo.id}`
+            `http://129.213.68.135/api/spotify-player/pausePlayer/${token}/${deviceInfo.id}`
           );
         } else {
           console.log("Error:", error);
@@ -273,7 +273,7 @@ const Player = ({
   const handleResume = async (uri) => {
     if (player) {
       const response = await Axios.put(
-        `http://129.213.68.135/spotify-player/resumePlayer/${uri}/${token}/${deviceInfo.id}/${trackInfo.position}`
+        `http://129.213.68.135/api/spotify-player/resumePlayer/${uri}/${token}/${deviceInfo.id}/${trackInfo.position}`
       );
       setIsPlaying(true);
       console.log(response.status);
@@ -286,7 +286,7 @@ const Player = ({
       if (player && selectedTrack.uri) {
         console.log(`track: ${selectedTrack.uri}`);
         const response = await Axios.put(
-          `http://129.213.68.135/spotify-player/playTrack/${selectedTrack.uri}/${token}/${deviceInfo.id}`
+          `http://129.213.68.135/api/spotify-player/playTrack/${selectedTrack.uri}/${token}/${deviceInfo.id}`
         );
         //QueueReq();
         setIsPlaying(true);
@@ -303,7 +303,7 @@ const Player = ({
   // const handlePlaySong = async (uri) => {
   //   if (player) {
   //     const response = await Axios.put(
-  //       `http://129.213.68.135/spotify-player/playTrack/${uri}/${token}/${deviceInfo.id}`
+  //       `http://129.213.68.135/api/spotify-player/playTrack/${uri}/${token}/${deviceInfo.id}`
   //     );
   //     setIsPlaying(true);
   //     console.log(response.status);
@@ -328,7 +328,7 @@ const Player = ({
     try {
       // Update the player's volume using the Spotify Web API
       const response = await Axios.put(
-        `http://129.213.68.135/spotify-player/volume/${newVolume}/${deviceInfo.id}/${token}`
+        `http://129.213.68.135/api/spotify-player/volume/${newVolume}/${deviceInfo.id}/${token}`
       );
       console.log(response.data);
     } catch (error) {
@@ -339,7 +339,7 @@ const Player = ({
   const onTrackSelect = async (selected_Track) => {
     setSelectedTrack(selected_Track);
     setShowSideMenu(false);
-    await Axios.delete(`http://129.213.68.135/queue/DeleteAQueue/${userID}`);
+    await Axios.delete(`http://129.213.68.135/api/queue/DeleteAQueue/${userID}`);
     setTimeout(() => {
       setSelectedTrack([]);
     }, 3000);

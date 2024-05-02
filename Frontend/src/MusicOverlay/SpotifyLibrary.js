@@ -20,10 +20,10 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
   useEffect(() => {
     const getLibrary = async () => {
       const albums = await Axios.get(
-        `http://129.213.68.135/Spotifylibray/usersSavedAlbums/${token}`
+        `http://129.213.68.135/api/Spotifylibray/usersSavedAlbums/${token}`
       );
       const tracks = await Axios.get(
-        `http://129.213.68.135/Spotifylibray/usersSavedTracks/${token}`
+        `http://129.213.68.135/api/Spotifylibray/usersSavedTracks/${token}`
       );
 
       //console.log(albums);
@@ -47,7 +47,7 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
           //console.log(selectedAlbum.id)
 
           const response = await Axios.get(
-            `http://129.213.68.135/spotify-api/albums/${selectedAlbum.id}`,
+            `http://129.213.68.135/api/spotify-api/albums/${selectedAlbum.id}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -68,7 +68,7 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
   const AddToQueue = async (track) => {
     //console.log(`track ${track}, device id ${device_ID}`)
     try {
-      await Axios.post(`http://129.213.68.135/queue/addQueue/${track.uri}`, {
+      await Axios.post(`http://129.213.68.135/api/queue/addQueue/${track.uri}`, {
         userID: userID,
       }).catch((error) => {
         console.log(`error inserting: ${error}`);
@@ -77,7 +77,7 @@ const Library = ({ spotID, token, onTrackSelect, userID }) => {
       //console.log(addQueue.data);
 
       const res = await Axios.post(
-        `http://129.213.68.135/spotify-player/addToQueue/${track.uri}/${token}`
+        `http://129.213.68.135/api/spotify-player/addToQueue/${track.uri}/${token}`
       );
       console.log(res.status);
 

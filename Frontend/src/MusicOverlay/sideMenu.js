@@ -43,7 +43,7 @@ const SideMenu = ({
       
       console.log(spotifyAccessToken);
       const response = await Axios.get(
-        "http://129.213.68.135/spotify-api/search",
+        "http://129.213.68.135/api/spotify-api/search",
         {
           headers: {
             Authorization: `Bearer ${spotifyAccessToken}`,

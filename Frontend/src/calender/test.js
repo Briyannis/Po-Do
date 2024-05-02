@@ -28,7 +28,7 @@ const Calendar = ({ auth, event, loginStatusID, eventCal }) => {
       localStorage.removeItem("guestTasks");
       const todaysTask = localStorage.getItem("TodaysTasks");
       Axios.get(
-        `http://129.213.68.135/tasks/podoDB/getTask?userID=${loginStatusID}`
+        `http://129.213.68.135/api/tasks/podoDB/getTask?userID=${loginStatusID}`
       )
         .then((response) => {
           if (todaysTask === null) {
@@ -84,7 +84,7 @@ const Calendar = ({ auth, event, loginStatusID, eventCal }) => {
       };
     } else if(auth === true){
       Axios.get(
-        `http://129.213.68.135/tasks/podoDB/getTask?userID=${loginStatusID}`
+        `http://129.213.68.135/api/tasks/podoDB/getTask?userID=${loginStatusID}`
       )
         .then((response) => {
 
@@ -147,7 +147,7 @@ const Calendar = ({ auth, event, loginStatusID, eventCal }) => {
         console.log(dateTimeString)
         const event = { task: eventName, descrip: eventDescription, date: dateTimeString };
 
-        Axios.post("http://129.213.68.135/tasks/podoDB/insertTask", {
+        Axios.post("http://129.213.68.135/api/tasks/podoDB/insertTask", {
         userID: loginStatusID,
         ...event,
       }).then((response) => {

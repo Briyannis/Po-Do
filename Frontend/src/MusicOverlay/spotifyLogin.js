@@ -21,7 +21,7 @@ const SpotifyLogin = ({ loginStatusID }) => {
       ) {
         try {
           const accInfo = await Axios.get(
-            "http://129.213.68.135/spotify-api/userInfo",
+            "http://129.213.68.135/api/spotify-api/userInfo",
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -34,7 +34,7 @@ const SpotifyLogin = ({ loginStatusID }) => {
           const accStatus = data.product;
           console.log(spotID);
 
-          await Axios.post("http://129.213.68.135/spotify-api/tokens", {
+          await Axios.post("http://129.213.68.135/api/spotify-api/tokens", {
             userID: loginStatusID,
             accStatus: accStatus,
             accessToken: accessToken,
@@ -51,7 +51,7 @@ const SpotifyLogin = ({ loginStatusID }) => {
   }, []);
 
   const handleSpotifyLogin = () => {
-    window.location.href = "http://129.213.68.135/spotify-api/login";
+    window.location.href = "http://129.213.68.135/api/spotify-api/login";
   };
 
   return (

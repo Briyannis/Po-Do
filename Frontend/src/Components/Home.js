@@ -43,7 +43,7 @@ const Home = () => {
   //Renders authentications for loggedin user
   useEffect(() => {
     const token = Cookies.get("token");
-    Axios.get("http://129.213.68.135/auth/", {
+    Axios.get("http://129.213.68.135/api/auth/", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -90,7 +90,7 @@ const Home = () => {
   }
 
   function handleLogOut(event) {
-    Axios.get("http://129.213.68.135/auth/logout")
+    Axios.get("http://129.213.68.135/api/auth/logout")
       .then((res) => {
         if (res.data.Status === "Success") {
           window.location.reload(true);

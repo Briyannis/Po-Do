@@ -24,7 +24,7 @@ const UserSettings = ({
     const fetchData = async () => {
       try {
         const response = await Axios.get(
-          `http://129.213.68.135/spotify-api/gettokens?userID=${userID}`
+          `http://129.213.68.135/api/spotify-api/gettokens?userID=${userID}`
         );
   
         if (response.data !== null) {
@@ -61,7 +61,7 @@ const UserSettings = ({
 
   const handleUpdates = () => {
     Axios.post(
-      `http://129.213.68.135/auth/updateUser?userID=${userID}&username=${formValues.username}&email=${formValues.email}&newPass=${formValues.password}&oldPass=${oldPass}`
+      `http://129.213.68.135/api/auth/updateUser?userID=${userID}&username=${formValues.username}&email=${formValues.email}&newPass=${formValues.password}&oldPass=${oldPass}`
     )
       .then((res) => {
         updateLoginStatus(res.data);
@@ -82,7 +82,7 @@ const UserSettings = ({
   const handleSpotLogout = async () => {
     console.log(userID);
     await Axios.delete(
-      `http://129.213.68.135/spotify-api/logout/${userID}`,
+      `http://129.213.68.135/api/spotify-api/logout/${userID}`,
       { userID: userID }
     ).then ((res) => {
 
@@ -96,7 +96,7 @@ const UserSettings = ({
   };
 
   const handleSpotifyLogin = () => {
-    window.location.href = "http://129.213.68.135/spotify-api/login";
+    window.location.href = "http://129.213.68.135/api/spotify-api/login";
   };
 
   return (

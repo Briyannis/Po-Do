@@ -9,9 +9,9 @@ const LogoutComponent = ({ loginStatusID, spotifyRefeshToken, spotifyAccessToken
     const spotifyLogout = async () => {
         try {
               // Redirect to Spotify logout
-              await Axios.get('http://129.213.68.135/spotlogout');
+              await Axios.get('http://129.213.68.135/api/spotlogout');
     
-           await Axios.delete(`http://129.213.68.135/spotify-api/logout`, {
+           await Axios.delete(`http://129.213.68.135/api/spotify-api/logout`, {
             data: {
               userID: loginStatusID,
             }

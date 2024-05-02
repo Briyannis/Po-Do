@@ -31,7 +31,7 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode, spotLog }) => {
           //setAccStatus("");
           // First, fetch tokens from the server
           const response = await Axios.get(
-            `http://129.213.68.135/spotify-api/gettokens?userID=${loginStatusID}`
+            `http://129.213.68.135/api/spotify-api/gettokens?userID=${loginStatusID}`
           );
           const tokens = response.data;
 
@@ -53,12 +53,12 @@ const MusicPlayer = ({ auth, loginStatusID, darkmode, spotLog }) => {
           if (tokens.refreshToken || tokens.refreshToken !== "undefined") {
             //console.log(tokens.accStatus)
             const refreshResponse = await Axios.get(
-              `http://129.213.68.135/spotify-api/refresh_token?refresh_token=${tokens.refreshToken}`
+              `http://129.213.68.135/api/spotify-api/refresh_token?refresh_token=${tokens.refreshToken}`
             );
             const { access_token } = refreshResponse.data;
             //console.log(access_token);
             setSpotifyAccessToken(access_token);
-            await Axios.post("http://129.213.68.135/spotify-api/tokens", {
+            await Axios.post("http://129.213.68.135/api/spotify-api/tokens", {
               userID: loginStatusID,
               accStatus: tokens.accStatus,
               accessToken: access_token,

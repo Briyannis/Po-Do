@@ -35,7 +35,7 @@ const SearchResult = ({
           //console.log(selectedAlbum.id)
 
           const response = await Axios.get(
-            `http://129.213.68.135/spotify-api/albums/${selectedAlbum.id}`,
+            `http://129.213.68.135/api/spotify-api/albums/${selectedAlbum.id}`,
             {
               headers: {
                 Authorization: `Bearer ${spotifyAccessToken}`,
@@ -60,7 +60,7 @@ const SearchResult = ({
           console.log("Artist", selectedArtist);
 
           const response = await Axios.get(
-            `http://129.213.68.135/spotify-api/artistsTracks/${selectedArtist.id}`,
+            `http://129.213.68.135/api/spotify-api/artistsTracks/${selectedArtist.id}`,
             {
               headers: {
                 Authorization: `Bearer ${spotifyAccessToken}`,
@@ -81,7 +81,7 @@ const SearchResult = ({
         if (selectedArtist && selectedArtist !== null) {
           //console.log("id", selectedArtist)
           const response = await Axios.get(
-            `http://129.213.68.135/spotify-api/artistsAlbums/${selectedArtist.id}`,
+            `http://129.213.68.135/api/spotify-api/artistsAlbums/${selectedArtist.id}`,
             {
               headers: {
                 Authorization: `Bearer ${spotifyAccessToken}`,
@@ -126,7 +126,7 @@ const SearchResult = ({
   const AddToQueue = async (track) => {
     //console.log(`track ${track}, device id ${device_ID}`)
     try {
-      await Axios.post(`http://129.213.68.135/queue/addQueue/${track.uri}`, {
+      await Axios.post(`http://129.213.68.135/api/queue/addQueue/${track.uri}`, {
         userID: userID,
       }).catch((error) => {
         console.log(`error inserting: ${error}`);
@@ -135,7 +135,7 @@ const SearchResult = ({
       //console.log(addQueue.data);
 
       const res = await Axios.post(
-        `http://129.213.68.135/spotify-player/addToQueue/${track.uri}/${spotifyAccessToken}`
+        `http://129.213.68.135/api/spotify-player/addToQueue/${track.uri}/${spotifyAccessToken}`
       );
       console.log(res.status);
 

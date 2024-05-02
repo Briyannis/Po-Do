@@ -48,7 +48,7 @@ const ToDoList = ({ loginStatusID, auth, event, eventCal }) => {
       setNewTask("");
       setNewTaskDate("");
       setDescrip("");
-      Axios.post("http://129.213.68.135/tasks/podoDB/insertTask", {
+      Axios.post("http://129.213.68.135/api/tasks/podoDB/insertTask", {
         userID: loginStatusID,
         ...task,
       })
@@ -81,7 +81,7 @@ const ToDoList = ({ loginStatusID, auth, event, eventCal }) => {
       //console.log(todaysTask);
 
       Axios.get(
-        `http://129.213.68.135/tasks/podoDB/getDayTask?userID=${loginStatusID}`
+        `http://129.213.68.135/api/tasks/podoDB/getDayTask?userID=${loginStatusID}`
       )
         .then((response) => {
           console.log(response)
@@ -218,7 +218,7 @@ const ToDoList = ({ loginStatusID, auth, event, eventCal }) => {
 
     console.log(task)
 
-    Axios.delete(`http://129.213.68.135/tasks/podoDB/deleteTask/${taskID}`, {
+    Axios.delete(`http://129.213.68.135/api/tasks/podoDB/deleteTask/${taskID}`, {
       data: {
         taskID: taskID,
       },

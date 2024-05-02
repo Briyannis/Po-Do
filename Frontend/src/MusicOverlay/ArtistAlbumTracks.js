@@ -20,7 +20,7 @@ const ArtistAlbumTracks = ({
         if (artistSelectedAlbum && artistSelectedAlbum !== null) {
           console.log(artistSelectedAlbum);
           const response = await Axios.get(
-            `http://129.213.68.135/spotify-api/albums/${artistSelectedAlbum.id}`,
+            `http://129.213.68.135/api/spotify-api/albums/${artistSelectedAlbum.id}`,
             {
               headers: {
                 Authorization: `Bearer ${spotifyAccessToken}`,
@@ -42,7 +42,7 @@ const ArtistAlbumTracks = ({
   const AddToQueue = async (track) => {
     //console.log(`track ${track}, device id ${device_ID}`)
     try {
-      await Axios.post(`http://129.213.68.135/queue/addQueue/${track.uri}`, {
+      await Axios.post(`http://129.213.68.135/api/queue/addQueue/${track.uri}`, {
         userID: userID,
       }).catch((error) => {
         console.log(`error inserting: ${error}`);
@@ -51,7 +51,7 @@ const ArtistAlbumTracks = ({
       //console.log(addQueue.data);
 
       const res = await Axios.post(
-        `http://129.213.68.135/spotify-player/addToQueue/${track.uri}/${spotifyAccessToken}`
+        `http://129.213.68.135/api/spotify-player/addToQueue/${track.uri}/${spotifyAccessToken}`
       );
       console.log(res.status);
 
